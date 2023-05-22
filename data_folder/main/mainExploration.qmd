@@ -1,0 +1,69 @@
+---
+title: "Exploration"
+format: html
+editor: visual
+---
+
+I desperately need better documentation on all these data sets.
+
+```{r}
+library(tidyverse)
+#Use haven to read .dta (stata) files
+library(haven)
+```
+
+## Fisheries concentration index
+
+```{r}
+fishery_concentration_index_2022_03_04 <- read_dta("fishery_concentration_index_2022_03_04.dta")
+```
+
+## Constraining 2022
+
+```{r}
+most_constraining_2022_03_04 <- read_dta("most_constraining_2022_03_04.dta")
+```
+
+## OLS Coefs, Quarterly
+
+```{r}
+CSV_quarterly_ols_coefs_from_R_2022_03_04 <- read_csv("quarterly_ols_coefs_from_R_2022_03_04.csv")
+```
+
+```{r}
+DTA_quarterly_ols_coefs_from_R_2022_03_04 <- read_dta("quarterly_ols_coefs_from_R_2022_03_04.dta")
+```
+
+## Stock Concentration Index, Quarterly
+
+```{r}
+quarterly_stock_concentration_index_2022_03_04 <- read_dta("quarterly_stock_concentration_index_2022_03_04.dta")
+```
+
+```{r}
+NO_EX_quarterly_stock_concentration_index_2022_03_04 <- read_dta("quarterly_stock_concentration_index_no_ex_2022_03_04.dta")
+```
+
+## Spatial Lags
+
+```{r}
+spatial_lags_2022_03_04 <- read_dta("spatial_lags_2022_03_04.dta")
+```
+
+## Spset ID Keys
+
+```{r}
+spset_id_keyfile_2022_03_04 <- read_dta("spset_id_keyfile_2022_03_04.dta")
+```
+
+## Spset Truncated ID Keys
+
+```{r}
+truncated_spset_id_keyfile_2022_03_04 <- read_dta("truncated_spset_id_keyfile_2022_03_04.dta")
+```
+
+## Tspatial Lags
+
+```{r}
+Tspatial_lags_2022_03_04 <- read_dta("Tspatial_lags_2022_03_04.dta")
+```
