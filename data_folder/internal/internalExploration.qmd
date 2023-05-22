@@ -1,0 +1,33 @@
+---
+title: "internal"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(haven)
+```
+
+## Average Crew Size
+
+```{r}
+average_crew_size_2022_03_04 <- read_dta("average_crew_size_2022_03_04.dta")
+```
+
+```{r}
+ggplot(data = average_crew_size_2022_03_04)+
+  aes(x=mult_year, y=avg_crew)+
+  geom_point()+
+  geom_line()+
+  labs(x="Year",
+       y="Average Crew Size")
+```
+
+Crew sizes have risen over time frame. Does the concentration (HHI) affect this?
+
+## DMIS Landed to Live
+
+```{r}
+dmis_landed_to_live <- read_dta("dmis_landed_to_live.dta")
+```
