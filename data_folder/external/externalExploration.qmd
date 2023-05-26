@@ -1,0 +1,10 @@
+---
+title: "external"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(haven)
+```

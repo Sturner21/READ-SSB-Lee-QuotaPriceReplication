@@ -1,0 +1,50 @@
+---
+title: "Concentration Investigation"
+format: html
+---
+
+```{r}
+library(tidyverse)
+library(haven)
+```
+
+## Load Data
+
+```{r}
+fishery_concentration_index_2022_03_04 <- read_dta("fishery_concentration_index_2022_03_04.dta")
+```
+
+Examine data
+
+```{r}
+fishery_concentration_index_2022_03_04
+```
+
+## Graph Data
+
+```{r}
+ggplot(data = fishery_concentration_index_2022_03_04)+
+  aes(x=quarterly, y=fishery_HHI_Q)+
+  geom_line()
+```
+
+Is this a cyclical pattern? Investigate below
+
+```{r}
+Concentration_Index <- fishery_concentration_index_2022_03_04 %>% 
+  mutate(quarter=as.vector(rep(l,10)), .after=quarterly) %>% 
+  mutate(quarter=as.factor(quarter))
+```
+
+```{r}
+Concentration_Index
+```
+
+```{r}
+ggplot(data = Concentration_Index)+
+  aes(x=fishing_year, y=fishery_HHI_Q, color=quarter)+
+  geom_line()+
+  scale_x_continuous(breaks = (2010:2019))
+```
+
+So there definetly seems to be a clear pattern with fishing consolidation depending on the season. I wonder why? Also remember, Q1=Winter, Q2=Spring, Q3=Summer, Q4=Fall.
