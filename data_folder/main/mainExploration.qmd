@@ -16,54 +16,79 @@ library(haven)
 
 ```{r}
 fishery_concentration_index_2022_03_04 <- read_dta("fishery_concentration_index_2022_03_04.dta")
+
+fishery_concentration_index_2022_03_04
 ```
 
 ## Constraining 2022
 
 ```{r}
 most_constraining_2022_03_04 <- read_dta("most_constraining_2022_03_04.dta")
+
+most_constraining_2022_03_04
 ```
 
 ## OLS Coefs, Quarterly
 
 ```{r}
 CSV_quarterly_ols_coefs_from_R_2022_03_04 <- read_csv("quarterly_ols_coefs_from_R_2022_03_04.csv")
+
+ggplot(data = CSV_quarterly_ols_coefs_from_R_2022_03_04 %>% 
+  filter(stock_id == "YELCCGM"))+
+  aes(x=dateq, y=b)+
+  geom_point()+
+  theme(axis.text.x = element_text(angle=45, hjust=1))+
+  labs(title = "REPLICATION OF \"Quota Price of CCGOM Yellowtail Flounder\"")
 ```
 
 ```{r}
 DTA_quarterly_ols_coefs_from_R_2022_03_04 <- read_dta("quarterly_ols_coefs_from_R_2022_03_04.dta")
+
+DTA_quarterly_ols_coefs_from_R_2022_03_04
 ```
 
 ## Stock Concentration Index, Quarterly
 
 ```{r}
 quarterly_stock_concentration_index_2022_03_04 <- read_dta("quarterly_stock_concentration_index_2022_03_04.dta")
+
+quarterly_stock_concentration_index_2022_03_04
 ```
 
 ```{r}
 NO_EX_quarterly_stock_concentration_index_2022_03_04 <- read_dta("quarterly_stock_concentration_index_no_ex_2022_03_04.dta")
+
+NO_EX_quarterly_stock_concentration_index_2022_03_04
 ```
 
 ## Spatial Lags
 
 ```{r}
 spatial_lags_2022_03_04 <- read_dta("spatial_lags_2022_03_04.dta")
+
+spatial_lags_2022_03_04
 ```
 
 ## Spset ID Keys
 
 ```{r}
 spset_id_keyfile_2022_03_04 <- read_dta("spset_id_keyfile_2022_03_04.dta")
+
+spset_id_keyfile_2022_03_04
 ```
 
 ## Spset Truncated ID Keys
 
 ```{r}
 truncated_spset_id_keyfile_2022_03_04 <- read_dta("truncated_spset_id_keyfile_2022_03_04.dta")
+
+truncated_spset_id_keyfile_2022_03_04
 ```
 
 ## Tspatial Lags
 
 ```{r}
 Tspatial_lags_2022_03_04 <- read_dta("Tspatial_lags_2022_03_04.dta")
+
+Tspatial_lags_2022_03_04
 ```
