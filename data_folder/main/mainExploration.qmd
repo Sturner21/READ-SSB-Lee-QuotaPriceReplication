@@ -47,6 +47,63 @@ DTA_quarterly_ols_coefs_from_R_2022_03_04 <- read_dta("quarterly_ols_coefs_from_
 DTA_quarterly_ols_coefs_from_R_2022_03_04
 ```
 
+Catch observed is in this data-set.
+
+Can very easily calculate the quota remaining and fraction quota remaining from table 5 because we have the variables "sector_livemt_acl" and "sector_livemt_catch" which describe allowable catch and realized catch.
+
+# Quarterly Coefs Explore
+
+```{r}
+ggplot(data = DTA_quarterly_ols_coefs_from_R_2022_03_04)+
+  aes(x=b)+
+  geom_histogram()+
+  labs(title="Distribution of Quarterly Stock Quota Prices - No Edits",
+       x="Predicted Quota Price for given Quarter")
+```
+
+-   Makes sense why they went with hurdle model, this distribution is totally distorted by the observations at or near 0
+
+-   Interesting that there are at least two crazy outliers at 1000 and 4000
+
+-   Possible that coloring by stock could help with visualization for when zooming in closer to center
+
+```{r}
+# Check what the appropriate cut off should be to edit the 1000 and 4000 out
+DTA_quarterly_ols_coefs_from_R_2022_03_04 %>%
+  filter(b > 1000)
+```
+
+Should try 1000 as the cut-off
+
+```{r}
+ggplot(data = DTA_quarterly_ols_coefs_from_R_2022_03_04 %>% filter(b<1000))+
+  aes(x=b, fill=stock)+
+  geom_histogram()+
+  labs(title="Quota Prices less than $1000 by Stock",
+       x="Predicted Quota Price for given Quarter")
+```
+
+-   Helps a little bit with understanding distribution. Still crazy amount of build up around 0 that I need to reconcile with. Should either get rid of the observations which equal 0 to see if they're just at 0 or very close, and need to zoom in especially on that area
+
+-   Interesting that certain stocks have quota prices above 200 up to 600 - I wonder if those are choke species or if they are the strange predictions like with the 1000 and 4000 that L&D discredited in their paper - Should double check that
+
+-   After adding in color it appears that either Plaice is really valuable to trade - which is unlikely given that I believe it often is not a choke species - or that interaction and intercept stocks are outliers. I will eliminate them to see which one is more likely
+
+```{r}
+ggplot(data = DTA_quarterly_ols_coefs_from_R_2022_03_04 %>% filter(b<1000 & stock != "Interaction" & stock != "Intercept"))+
+  aes(x=b, fill=stock)+
+  geom_histogram(bins = 75)+
+  labs(title="Quota Prices less than $1000 by Stock",
+       x="Predicted Quota Price for given Quarter",
+       caption = "Omitting \"Interaction\" and \"Intercpet\" stocks - 75 bins")
+```
+
+-   Removing interaction and intercept "stocks" from the data seems to really help this distribution. We removed a lot from the range
+
+-   We can also see that most species trade at positive prices which makes intuitive sense since we would expect most fishermen to just hold their quotas instead of paying for other people to take them since I don't believe there is a negative consequence for holding them. Should ask Kanae about that
+
+-   Should investigate if this relationship changes by quarters
+
 ## Stock Concentration Index, Quarterly
 
 ```{r}
@@ -68,6 +125,12 @@ spatial_lags_2022_03_04 <- read_dta("spatial_lags_2022_03_04.dta")
 
 spatial_lags_2022_03_04
 ```
+
+Variables ending in "livep" such as "Wrev_livep" may be the live price indicator part of the *outcome* portion of the models in Table 5.
+
+This would make sense since a "quota_remaining" variable is directly following this variable both in the data and in Table 5
+
+Wait... The beginning letters change and then repeat the same "livep" and "quota_remaining" ending. What does that mean?
 
 ## Spset ID Keys
 
