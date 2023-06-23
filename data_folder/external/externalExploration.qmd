@@ -8,3 +8,127 @@ editor: visual
 library(tidyverse)
 library(haven)
 ```
+
+## Annual ACLs 06/15/20
+
+```{r}
+annual_acls_2020_06_15 <- read_dta("annual_acls_2020_06_15.dta")
+
+annual_acls_2020_06_15
+```
+
+## Annual Aggregate PSC 3/4/22
+
+```{r}
+annual_aggregate_psc_2022_03_04 <- read_dta("annual_aggregate_psc_2022_03_04.dta")
+
+annual_aggregate_psc_2022_03_04
+```
+
+## Annual Catch and ACL 3/4/22
+
+```{r}
+annual_catch_and_acl_2022_03_04 <- read_dta("annual_catch_and_acl_2022_03_04.dta")
+
+annual_catch_and_acl_2022_03_04
+```
+
+## Annual PSC by MRI 3/4/22
+
+```{r}
+annual_psc_by_mri_2022_03_04 <- read_dta("annual_psc_by_mri_2022_03_04.dta")
+
+annual_psc_by_mri_2022_03_04
+```
+
+## DeflatorsQ 3/4/22
+
+```{r}
+deflatorsQ_2022_03_04 <- read_dta("deflatorsQ_2022_03_04.dta")
+
+deflatorsQ_2022_03_04
+```
+
+## DeflatorsY 3/4/22
+
+```{r}
+deflatorsY_2022_03_04 <- read_dta("deflatorsY_2022_03_04.dta")
+
+deflatorsY_2022_03_04
+```
+
+## Diesel 3/4/22
+
+```{r}
+diesel_2022_03_04 <- read_dta("diesel_2022_03_04.dta")
+
+diesel_2022_03_04
+```
+
+## DMIS monthly quota usage 3/4/22
+
+```{r}
+dmis_monthly_quota_usage_2022_03_04 <- read_dta("dmis_monthly_quota_usage_2022_03_04.dta")
+
+dmis_monthly_quota_usage_2022_03_04
+```
+
+## DMIS quarterly quota usage 3/4/22
+
+```{r}
+dmis_quarterly_quota_usage_2022_03_04 <- read_dta("dmis_quarterly_quota_usage_2022_03_04.dta")
+
+dmis_quarterly_quota_usage_2022_03_04
+```
+
+# Catch History
+
+## Catch 2009
+
+```{r}
+catch2009 <- read_csv("catch_history/catch2009.csv")
+
+catch2009
+```
+
+## Catch 2018
+
+```{r}
+catch2018 <- read_csv("catch_history/catch2018.csv")
+
+catch2018
+```
+
+## Catch 2019
+
+```{r}
+catch2019 <- read_csv("catch_history/catch2019.csv")
+
+catch2019
+```
+
+## Catch Hist
+
+```{r}
+catchHist <- read_csv("catch_history/catchHist.csv")
+
+catchHist
+```
+
+## US Canada
+
+```{r}
+us_canada <- read_csv("catch_history/us_canada.csv")
+
+us_canada
+```
+
+# GIS
+
+## Stat area km
+
+```{r}
+stat_area_km <- read_csv("gis/stat_area_km.csv")
+
+stat_area_km
+```
