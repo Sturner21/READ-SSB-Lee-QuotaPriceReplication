@@ -1,0 +1,149 @@
+---
+title: "Cragg"
+format: html
+---
+
+## Libraries
+
+```{r}
+library(tidyverse)
+library(mhurdle)
+library(AER)
+library(pscl)
+library(countreg)
+library(lmtest)
+```
+
+# Replicate Documentation
+
+The documentation for the *mhurdle* package can be found [here](https://cran.r-project.org/web/packages/mhurdle/vignettes/mhurdle.pdf). We will be replicating Section 5, **Software Rationale**. In this replication we will be trying to fit the hurdle model to how much households spend on the "fees and admission" good. This should have a lot of 0 observations because some households will not spend any money on them at all, others will infrequently, and others still will spend a good portion of their income on it. This should be a good introduction package, and this data should represent the quota prices that I ultimately want to test well.
+
+```{r}
+data("Interview", package = "mhurdle")
+```
+
+The covariates of this data set are:
+
+1.  Income - Annual net income by consumption unit
+2.  SMSA - Does the household live in SMSA (yes or no)
+3.  Age - The age of the reference person of the household
+4.  Educ - The number of years of education of the reference person of the household
+5.  Sex - The sex of the reference person of the household (male or female)
+6.  Size - The number of persons in the household
+7.  Month - The month of the interview (Between 1 to 12)
+
+The analysis uses the households spending on the "fees and admission" good which is called *shows* in the data set.
+
+```{r}
+round(c(mean = mean(Interview$shows),
+        "% of 0" = mean(Interview$shows == 0),
+        "mean pos" = mean(Interview$shows) / mean(Interview$shows > 0)),
+      2)
+```
+
+These are good summary statistics, but if you actually want to see some of the data from *Interview*, here:
+
+```{r}
+head(Interview %>% 
+  #select() is masked by some other pakcage so I have to explicitly call it from dplyr to use   #it
+  dplyr::select(income, smsa, age, educ, sex, size, month, shows))
+```
+
+To illustrate the use of *mhurdle* we will start with a single equation tobit model using both the normal and log-normal specification
+
+```{r}
+N010I <- mhurdle(shows ~ 0 | linc + smsa + age + educ + size, 
+                 data = Interview,
+                 h2 = TRUE, dist = "n", method = "bhhh") 
+
+L010I <- update(N010I, dist = "ln")
+```
+
+The naming convention for the models in this documentation is as follows:
+
+-   Each model is 5 digits long
+
+-   The first capital letter denotes the distribution used - N for normal and L for log-normal
+
+-   The second, third, and fourth are binary representing if the first, second, or third hurdle has been used (1 if used, 0 if not used)
+
+-   The fifth digit is either D or I depending on if the model is dependent (D) or independent (I)
+
+We should consider two other hurdle models, namely selection process and infrequency of purchase.
+
+```{r}
+L100D <- mhurdle(shows ~ smsa + age + educ + size | linc, data = Interview,
+                 h2 = FALSE, dist = "ln", corr = TRUE, method = "bhhh",
+finalHessian = TRUE)
+L100D2 <- update(L100D, start = coef(L100D), robust = FALSE)
+L110D <- update(L100D, h2 = TRUE)
+L110D2 <- update(L110D, start = coef(L110D), robust = FALSE)
+
+
+L001D <- mhurdle(shows ~ 0 | linc | smsa + age +
+educ + size, data = Interview,
+                   h2 = FALSE, corr = TRUE, method = "bhhh",
+                 finalHessian = TRUE)
+L001D2 <- update(L001D, start = coef(L001D), robust = FALSE) 
+L011D <- update(L001D, h2 = TRUE)
+L011D2 <- update(L011D, start = coef(L011D), robust = FALSE)
+```
+
+```{r}
+L101D <- mhurdle(shows ~ educ + size | linc |
+smsa + age, data = Interview,
+                    h2 = FALSE, method = "bhhh", corr = TRUE,
+                 finalHessian = TRUE)
+L101D2 <- update(L101D, start = coef(L101D), robust = FALSE) 
+L111D <- update(L101D, h2 = TRUE)
+L111D2 <- update(L111D, start = coef(L111D), robust = FALSE) 
+L111I <- update(L111D, corr = FALSE)
+L111I2 <- update(L111I, start = coef(L111I), robust = FALSE)
+```
+
+The results are shown in the table below
+
+```{r}
+models <- list(L110D = L110D, L011D = L011D, 
+               L101D = L101D, L111D = L111D, L111I = L111I)
+coefs <- unique(Reduce("c", lapply(models, function(x) names(coef(x)))))
+coefs1 <- grep("h1", coefs)
+coefs2 <- grep("h2", coefs)
+coefs3 <- grep("h3", coefs)
+coefso <- (1:length(coefs))[-c (coefs1, coefs2, coefs3)]
+custcoefs <- coefs
+custcoefs[coefso] <- c("$\\sigma$", "$\\rho_{12}$", "$\\alpha$", "$\\rho_{23}$", "$\\rho_{13}$")
+coefs.h <- grep("h.\\.", coefs)
+#custcoefs[coefs.h] <- substring(custcoefs[coefs.h], 4, 1E4)
+groups <- list("**Hurdle 1**" = 1:length(coefs1),
+               "**Hurlde 2**" = (length(coefs1)+1):(length(coefs1) + length(coefs2)),
+               "**Hurdle 3**"= (length(coefs1)+length(coefs2)+1):(length(coefs1) + length(coefs2) + length(coefs3)),
+               "**Others**" = (length(coefs1) + length(coefs2) + length(coefs3) + 1) : (length(coefs1) + length(coefs2) + length(coefs3) + length(coefso)))
+#coeflabels <- gsub("h[1-3]\\.(\\w*)", "\\1", coefs)
+```
+
+```{r}
+#| eval: false
+texreg::htmlreg(models, reorder.coef = c(coefs1, coefs2, coefs3, coefso), 
+       custom.coef.names = custcoefs,#[c(coefs1, coefs2, coefs3, coefso)],
+       caption = "Estimation of cencored models for the fees and admissions good",
+       label = "tab:estimations",
+       groups = groups
+       ) 
+```
+
+```{r}
+#Less good way of getting the above code to execute. Don't need a perfect summary, just one that ensures I'm on the right track. Which this one does, it has the same numbers as the documentation
+
+#Interesting note - significance levels are not appearing here for some reason. Probably my fault since I only specified the models arguement
+
+
+library(modelsummary)
+modelsummary(models = models)
+```
+
+# Clean main Data
+
+# No Climate Change
+
+# With Climate Change

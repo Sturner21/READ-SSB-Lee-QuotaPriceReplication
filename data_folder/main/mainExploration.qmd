@@ -130,7 +130,17 @@ Variables ending in "livep" such as "Wrev_livep" may be the live price indicator
 
 This would make sense since a "quota_remaining" variable is directly following this variable both in the data and in Table 5
 
-Wait... The beginning letters change and then repeat the same "livep" and "quota_remaining" ending. What does that mean?
+Wait... The beginning letters change and then repeat the same "livep" and "quota_remaining" ending. What does that mean? -\> Kanae pointed out that "rev" represents revenue and "swt" represents summed weights. Also, "W" and "D" almost certainly represent the weights and either the distance or inverse weights of the quota prices which I couldn't figure out before. Confusing matrix terminology so have to ask Kanae for help with that
+
+According to the French paper (CITATION), the lag component in spatial lag is a logarithm. That must be what the natural log (ln) is in the data set.
+
+```{r}
+#What are the associated stock codes?
+DTA_quarterly_ols_coefs_from_R_2022_03_04 %>% 
+  select(stockcode, stock_id) %>% 
+  distinct() %>% 
+  filter(stockcode>9)
+```
 
 ## Spset ID Keys
 
