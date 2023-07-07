@@ -15,10 +15,10 @@ There are tons of warnings from packages masking and such. So, in the YAML I hav
 #Load in most of the necessary packages for this project
 library(tidyverse)
 library(mhurdle)
-library(AER)
-library(pscl)
-library(countreg)
-library(lmtest)
+#library(AER)
+#library(pscl)
+#library(countreg)
+#library(lmtest)
 ```
 
 # Replicate Documentation
@@ -171,9 +171,121 @@ This concludes the replication of the documentation.
 
 # Clean main Data
 
-We need to get the data from {"quarterly_ols_coefs_from_R_2022_03_04.dta", "spatial_lags_2022_03_04.dta", and "Tspatial_lags_2022_03_04.dta"} into a singular, tidy, data frame so that we can start replicating the results. Below is the code of how I combined and cleaned the data.
+We need to get the data from "quarterly_ols_coefs_from_R_2022_03_04.dta", "spatial_lags_2022_03_04.dta", and "Tspatial_lags_2022_03_04.dta" into a singular, tidy, data frame so that we can start replicating the results. Below is the code of how I combined and cleaned the data.
+
+```{r}
+#We need to load all the different data sets in
+library(haven)
+
+quarterly_fish_prices <- read_dta("quarterly_ols_coefs_from_R_2022_03_04.dta")
+Tspatial_lags <- read_dta("Tspatial_lags_2022_03_04.dta")
+```
+
+```{r}
+#Select the variables of interest from each data set
+
+#Select variables from quarterly fish prices
+quarterly_fish_prices <-  quarterly_fish_prices %>% 
+  dplyr::select(fishing_year, q_fy, b, dateq, stockcode, stock_id, stock, nespp3, stockarea, spstock2, quota_remaining_BOQ, fraction_remaining_BOQ, proportion_observed, live_priceGDP)
+
+#Select variables of interest from each data set
+Tspatial_lags <-  Tspatial_lags %>% 
+  dplyr::select(fishing_year, dateq, stockcode, WTswt_quota_remaining_BOQ, WTDswt_quota_remaining_BOQ)
+```
+
+There are a different amount of observations in the two data sets, so lets make them the same length so that the join is 1:1.
+
+```{r}
+Tspatial_lags
+```
+
+```{r}
+Tspatial_lags %>% 
+  dplyr::filter(is.na(WTswt_quota_remaining_BOQ))
+```
+
+```{r}
+#Further select down for the variables that are shared between quarterly and Tspatial data sets
+
+#Want to get this to the 672 observations of "Tspatial_lags"
+quarterly_fish_prices <-  quarterly_fish_prices %>% 
+  #Helps get rid of some observations - Gets to 884 rows
+  dplyr::filter(stockcode != 1818 & stockcode != 9999) %>% 
+  #Gets down to 680 rows
+  dplyr::filter(fishing_year >= 2010 & fishing_year <= 2019)
+```
+
+Let's try to combine the data sets now and see which ones have missing values to pinpoint the non-overlapping observations.
+
+```{r}
+replic <-  dplyr::right_join(Tspatial_lags, quarterly_fish_prices, by = c("fishing_year", "dateq", "stockcode")) %>% 
+  #This filters out the non-overlapping parts of our dataset
+  dplyr::filter(!is.na(WTswt_quota_remaining_BOQ))
+
+#Even though there are som missing values for "b", there shouldn't be an issue running regressions on it
+```
+
+May not need this below chunk. Technically, there is quarter already coded into the data set, but I'm not sure how much I trust it.
+
+```{r}
+#Add in factor variable quarter
+
+replic <-  replic %>%
+  #Rearrange 'replic' so that we have each stock in chronological order
+  dplyr::arrange(stockcode) %>% 
+  #Add in a quarter variable
+  dplyr::mutate(quarter=rep(c("Q1","Q2","Q3","Q4"), times=168), .after = fishing_year) %>% 
+  #Make the quarter variable a factor variable so regression recognizes it as a dummy variable
+  dplyr::mutate(quarter = as.factor(quarter))
+```
+
+```{r}
+head(replic)
+```
 
 # Model - No Climate Change
+
+Let's try to make a hurdle model.
+
+```{r}
+#| eval: false
+#This also isn't working. Let's just try the OLS first
+mhurdle(data = replic,
+        b ~ quota_remaining_BOQ + proportion_observed + quarter | live_priceGDP,
+        h2 = TRUE)
+```
+
+```{r}
+#| eval: false
+#This does not work. Trying a simpler model to understand where I went wrong
+mhurdle(data = replic, 
+        b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter | live_priceGDP + quota_remaining_BOQ + fraction_remaining_BOQ + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter,
+        h2 = TRUE,
+        dist = "ln",
+        corr = TRUE,
+        method = "bhhh")
+```
+
+Trying to replicate the OLS model.
+
+```{r}
+#Seeing if we can replicate the 'OLS' column of Table 5 from Lee & Demarest
+
+lm(data = replic, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter) %>% 
+  summary()
+```
+
+```{r}
+#what happens if it use the glm command?
+#Doesn't work
+
+logit <- function(p) log( p / (1 - p))
+
+glm(data = replic, 
+    family = binomial(link = "logit"),
+    b ~ live_priceGDP + quota_remaining_BOQ + fraction_remaining_BOQ + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter) %>% 
+  summary()
+```
 
 # Model - With Climate Change
 
