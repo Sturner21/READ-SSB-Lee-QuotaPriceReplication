@@ -1,11 +1,18 @@
 ---
 title: "Cragg"
-format: html
+format: 
+  html:
+    self-contained: true
+execute: 
+  warning: false
 ---
 
 ## Libraries
 
+There are tons of warnings from packages masking and such. So, in the YAML I have suppressed warnings.
+
 ```{r}
+#Load in most of the necessary packages for this project
 library(tidyverse)
 library(mhurdle)
 library(AER)
@@ -19,6 +26,7 @@ library(lmtest)
 The documentation for the *mhurdle* package can be found [here](https://cran.r-project.org/web/packages/mhurdle/vignettes/mhurdle.pdf). We will be replicating Section 5, **Software Rationale**. In this replication we will be trying to fit the hurdle model to how much households spend on the "fees and admission" good. This should have a lot of 0 observations because some households will not spend any money on them at all, others will infrequently, and others still will spend a good portion of their income on it. This should be a good introduction package, and this data should represent the quota prices that I ultimately want to test well.
 
 ```{r}
+#Grab the data that the documentation uses
 data("Interview", package = "mhurdle")
 ```
 
@@ -35,6 +43,7 @@ The covariates of this data set are:
 The analysis uses the households spending on the "fees and admission" good which is called *shows* in the data set.
 
 ```{r}
+#What is the mean value, how many observations are 0, and what is the average for non-0 observations
 round(c(mean = mean(Interview$shows),
         "% of 0" = mean(Interview$shows == 0),
         "mean pos" = mean(Interview$shows) / mean(Interview$shows > 0)),
@@ -44,6 +53,7 @@ round(c(mean = mean(Interview$shows),
 These are good summary statistics, but if you actually want to see some of the data from *Interview*, here:
 
 ```{r}
+#Just check out some of the data set
 head(Interview %>% 
   #select() is masked by some other pakcage so I have to explicitly call it from dplyr to use   #it
   dplyr::select(income, smsa, age, educ, sex, size, month, shows))
@@ -52,6 +62,7 @@ head(Interview %>%
 To illustrate the use of *mhurdle* we will start with a single equation tobit model using both the normal and log-normal specification
 
 ```{r}
+#Not sure this ever appears again. Certainly not in the below table so not sure what the point of it is
 N010I <- mhurdle(shows ~ 0 | linc + smsa + age + educ + size, 
                  data = Interview,
                  h2 = TRUE, dist = "n", method = "bhhh") 
@@ -72,6 +83,7 @@ The naming convention for the models in this documentation is as follows:
 We should consider two other hurdle models, namely selection process and infrequency of purchase.
 
 ```{r}
+#Creates a lot of models, some of which are displayed in the table below
 L100D <- mhurdle(shows ~ smsa + age + educ + size | linc, data = Interview,
                  h2 = FALSE, dist = "ln", corr = TRUE, method = "bhhh",
 finalHessian = TRUE)
@@ -90,6 +102,7 @@ L011D2 <- update(L011D, start = coef(L011D), robust = FALSE)
 ```
 
 ```{r}
+#Makes some more of the models that appear in the table below
 L101D <- mhurdle(shows ~ educ + size | linc |
 smsa + age, data = Interview,
                     h2 = FALSE, method = "bhhh", corr = TRUE,
@@ -104,6 +117,7 @@ L111I2 <- update(L111I, start = coef(L111I), robust = FALSE)
 The results are shown in the table below
 
 ```{r}
+#Sets up the list of the models that are considered in the table below. Plus, it outlines how to seperate the table by the different models which will be helpful in my final rendering
 models <- list(L110D = L110D, L011D = L011D, 
                L101D = L101D, L111D = L111D, L111I = L111I)
 coefs <- unique(Reduce("c", lapply(models, function(x) names(coef(x)))))
@@ -123,27 +137,44 @@ groups <- list("**Hurdle 1**" = 1:length(coefs1),
 ```
 
 ```{r}
-#| eval: false
+#| eval: true
+#| results: asis
+
+#In the original document this is a texreg because it's a PDF. However, I am rendering a HTML document so I've made the slight alteration of using the htmlreg command
+
 texreg::htmlreg(models, reorder.coef = c(coefs1, coefs2, coefs3, coefso), 
        custom.coef.names = custcoefs,#[c(coefs1, coefs2, coefs3, coefso)],
        caption = "Estimation of cencored models for the fees and admissions good",
        label = "tab:estimations",
        groups = groups
-       ) 
+       )
+```
+
+For my work, it looks like I'll want to use the code that creates the the model **L110D** since that creates the two part hurdle.
+
+Below are some significance tests that the paper runs. I do not fully understand this so circling back may be helpful. However, to start I just want to replicate Lee & Demarest's findings so all these tests aren't necessary. Only once I start considering my own will they be helpful.
+
+```{r}
+library(lmtest)
+lrtest(L111D, L111I)
 ```
 
 ```{r}
-#Less good way of getting the above code to execute. Don't need a perfect summary, just one that ensures I'm on the right track. Which this one does, it has the same numbers as the documentation
-
-#Interesting note - significance levels are not appearing here for some reason. Probably my fault since I only specified the models arguement
-
-
-library(modelsummary)
-modelsummary(models = models)
+vuongtest(L111D, L111I, type = "nested")
 ```
+
+```{r}
+ndvuongtest(L110D, L011D)
+```
+
+This concludes the replication of the documentation.
 
 # Clean main Data
 
-# No Climate Change
+We need to get the data from {"quarterly_ols_coefs_from_R_2022_03_04.dta", "spatial_lags_2022_03_04.dta", and "Tspatial_lags_2022_03_04.dta"} into a singular, tidy, data frame so that we can start replicating the results. Below is the code of how I combined and cleaned the data.
 
-# With Climate Change
+# Model - No Climate Change
+
+# Model - With Climate Change
+
+Need to import the climate change data from NOAA's *ecodata* package.
