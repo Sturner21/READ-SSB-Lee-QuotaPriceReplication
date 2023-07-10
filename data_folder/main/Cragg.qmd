@@ -3,18 +3,21 @@ title: "Cragg"
 format: 
   html:
     self-contained: true
+    toc: true
+    toc-location: right
 execute: 
   warning: false
 ---
 
 ## Libraries
 
-There are tons of warnings from packages masking and such. So, in the YAML I have suppressed warnings.
+There are tons of warnings from packages masking and such. So, in the YAML I have suppressed warnings for rendering.
 
 ```{r}
 #Load in most of the necessary packages for this project
 library(tidyverse)
 library(mhurdle)
+#These just keep overwriting eachother so I'll load them in as I need them in this document
 #library(AER)
 #library(pscl)
 #library(countreg)
@@ -200,11 +203,6 @@ Tspatial_lags
 ```
 
 ```{r}
-Tspatial_lags %>% 
-  dplyr::filter(is.na(WTswt_quota_remaining_BOQ))
-```
-
-```{r}
 #Further select down for the variables that are shared between quarterly and Tspatial data sets
 
 #Want to get this to the 672 observations of "Tspatial_lags"
@@ -243,28 +241,125 @@ replic <-  replic %>%
 head(replic)
 ```
 
+Finally, we need to adapt the quota prices to the assumptions made by Lee & Demarest, we need to make all the NA's and negative values into 0's.
+
+```{r}
+replic <- replic %>%
+  #Stage 1 is to make any negative values into 0's
+  dplyr::mutate(b = case_when(b < 0 ~ 0,
+                              b >=0 ~ b)) %>% 
+  #Stage 2 is to make any NA's into 0's
+  dplyr::mutate(b = replace_na(b, 0))
+```
+
 # Model - No Climate Change
+
+## mhurdle package method
+
+```{r}
+#For quick referenceing of models because "summary()" doesn't work with mhurdle package
+library(modelsummary)
+```
 
 Let's try to make a hurdle model.
 
 ```{r}
-#| eval: false
-#This also isn't working. Let's just try the OLS first
-mhurdle(data = replic,
-        b ~ quota_remaining_BOQ + proportion_observed + quarter | live_priceGDP,
-        h2 = TRUE)
+hurdle.1a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter, 
+                 data = replic,
+                 h2 = TRUE, dist = "n", method = "bhhh") 
+
+hurdle.1b <- update(hurdle.1a, dist = "ln")
 ```
 
 ```{r}
-#| eval: false
-#This does not work. Trying a simpler model to understand where I went wrong
-mhurdle(data = replic, 
-        b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter | live_priceGDP + quota_remaining_BOQ + fraction_remaining_BOQ + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter,
-        h2 = TRUE,
-        dist = "ln",
-        corr = TRUE,
-        method = "bhhh")
+modelsummary(models = list("1a" = hurdle.1a, "1b" = hurdle.1b),
+             stars = c('*' = .1, '**' = .05, '***' = 0.01))
 ```
+
+This verbatim makes the models that we started with in the documentation for the hurdle model. The model summary lets us easily take a look at them and their significance. Let's try to make some more complicated ones.
+
+```{r}
+hurdle.2a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter, data = replic,
+                 h2 = FALSE, dist = "ln", corr = TRUE, method = "bhhh", finalHessian = TRUE)
+
+hurdle.2b <- update(hurdle.2a, start = coef(hurdle.2a), robust = FALSE)
+hurdle.2c <- update(hurdle.2a, h2 = TRUE)
+hurdle.2d <- update(hurdle.2c, start = coef(hurdle.2c), robust = FALSE)
+```
+
+```{r}
+modelsummary(models = list("2a" = hurdle.2a, "2b" = hurdle.2b, "2c" = hurdle.2c, "2d"= hurdle.2d),
+             stars = c('*' = .1, '**' = .05, '***' = 0.01))
+```
+
+The more complicated models have now been replicated. Let's try the most complex finally and see what they look like.
+
+```{r}
+hurdle.3a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter, data = replic,
+                     h2=FALSE, corr=TRUE, method="bhhh", finalHessian=TRUE)
+hurdle.3b <- update(hurdle.3a, start = coef(hurdle.3a), robust = FALSE)
+hurdle.3c <- update(hurdle.3a, h2=TRUE)
+hurdle.3d <- update(hurdle.3c, start = coef(hurdle.3c), robust = FALSE)
+```
+
+```{r}
+modelsummary(models = list("3a" = hurdle.3a, "3b" = hurdle.3b, "3c" = hurdle.3c, "3d"= hurdle.3d),
+             stars = c('*' = .1, '**' = .05, '***' = 0.01))
+```
+
+## UVA method
+
+I will need to use different packages than *countreg* since I need distributions similar to Poisson but that are continuous. Internet says the *GAMLSS* has such distributions.
+
+```{r}
+library(AER)
+library(pscl)
+library(countreg)
+```
+
+```{r}
+mod1 <- glm(data = replic, family = "gaussian",
+    b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter + live_priceGDP + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ) 
+
+mod1 %>% 
+  summary()
+```
+
+Quota prices that are negative are probably just modelling error since econ theory (and common sense) would suggest that agents wouldn't pay to have quota taken off their hands. So, for the sake of argument, let's eliminate them from consideration so we can try and fit a poisson distribution.
+
+```{r}
+#| warning: false
+
+#Suppres the ungodly amount of warnings from the errors of trying the poisson
+
+glm(data = replic, family = "poisson",
+    b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter + live_priceGDP + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ) %>% 
+  summary()
+```
+
+```{r}
+#Use the quasipoisson to correct for the prices which are not integers but it also means that I have no AIC
+#Not the worst thing in the world since I had AIC=inf when using just "poisson"
+mod2 <- glm(data = replic, family = "quasipoisson",
+    b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter + live_priceGDP + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ) 
+
+mod2 %>% 
+  summary()
+```
+
+Hurdle model
+
+Could just multiply by 100000 and round
+
+Can I just make a two stage model - part one being logistic and part two being OLS (or something similar)
+
+```{r}
+#| eval: false
+hurdle(data = replic, b ~ .) %>% 
+  summary()
+```
+
+## OLS method
 
 Trying to replicate the OLS model.
 
@@ -276,8 +371,9 @@ lm(data = replic, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed 
 ```
 
 ```{r}
+#| eval: false
 #what happens if it use the glm command?
-#Doesn't work
+#Doesn't work - obviously, the logit only predicts a dependent variable between 0 and 1, but our quota prices are more than 1
 
 logit <- function(p) log( p / (1 - p))
 
