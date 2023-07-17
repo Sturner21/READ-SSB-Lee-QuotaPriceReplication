@@ -24,6 +24,10 @@ library(mhurdle)
 #library(lmtest)
 ```
 
+Why would we want to use Cragg's double-hurdle model?
+
+We observe a lot of 0's in this data, so if we used an OLS regression then we would not get an accurate picture as to what the true determinants are for the quota prices. A Tobit model is also a double-hurdle model, which allows for the researcher to determine first whether the data is going to be a zero, and then if it's not, what value it would take on. The downside to this method is that the Tobit assumes that the same process and variables determine both whether the data will be a 0 or what number it will be. Cragg recognized that there were important use cases in economics for this, such as consumer spending. However, he also realized that the variables which determine consumer spending are not the same across buying the good. Cragg's model allows for different variables to be included in both stages of the Tobit model to better account for different preferences acting in varying degrees in the consumer's purchasing process.
+
 # Replicate Documentation
 
 The documentation for the *mhurdle* package can be found [here](https://cran.r-project.org/web/packages/mhurdle/vignettes/mhurdle.pdf). We will be replicating Section 5, **Software Rationale**. In this replication we will be trying to fit the hurdle model to how much households spend on the "fees and admission" good. This should have a lot of 0 observations because some households will not spend any money on them at all, others will infrequently, and others still will spend a good portion of their income on it. This should be a good introduction package, and this data should represent the quota prices that I ultimately want to test well.
@@ -199,7 +203,7 @@ Tspatial_lags <-  Tspatial_lags %>%
 There are a different amount of observations in the two data sets, so lets make them the same length so that the join is 1:1.
 
 ```{r}
-Tspatial_lags
+head(Tspatial_lags)
 ```
 
 ```{r}
@@ -276,7 +280,13 @@ modelsummary(models = list("1a" = hurdle.1a, "1b" = hurdle.1b),
              stars = c('*' = .1, '**' = .05, '***' = 0.01))
 ```
 
-This verbatim makes the models that we started with in the documentation for the hurdle model. The model summary lets us easily take a look at them and their significance. Let's try to make some more complicated ones.
+This verbatim makes the models that we started with in the documentation for the hurdle model. The model summary lets us easily take a look at them and their significance.
+
+As Kanae says, even a monkey can make a regression but can you understand its output? Currently, no. However, using the link to [this paper](https://journals.sagepub.com/doi/pdf/10.1177/1536867X0900900405) I should be able to parse together what the outputs are for this model. Below is my best attempt at decoding what I've found.
+
+Turns out this page was not helpful in this regard at all. I did like the article though so I'm keeping it here.
+
+Let's try to make some more complicated ones.
 
 ```{r}
 hurdle.2a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter, data = replic,
@@ -370,6 +380,12 @@ lm(data = replic, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed 
   summary()
 ```
 
+Should try with logging everything to adjust for non-linearities. Can't hurt...
+
+Should include dummy variable for the stock codes.
+
+Also, should include an interaction term between some of the stock codes and the climate change indicators.
+
 ```{r}
 #| eval: false
 #what happens if it use the glm command?
@@ -385,4 +401,260 @@ glm(data = replic,
 
 # Model - With Climate Change
 
-Need to import the climate change data from NOAA's *ecodata* package.
+## Import Ecodata
+
+```{r}
+#| eval: false
+#Command for installing ecodata if you don't have it yet
+library(devtools)
+remotes::install_github("noaa-edab/ecodata",build_vignettes=TRUE)
+```
+
+```{r}
+library(ecodata)
+```
+
+## Clean Ecodata
+
+We want to bring in indicators of climate change. Below are data sets of *ecodata* that are of interest:
+
+```{r}
+#For bottom sea temperature
+#Data is only annually so need to fix
+bottom_temp <- ecodata::bottom_temp
+
+#Harmful algae blooms
+#Data is only annually so need to fix
+habs <- ecodata::habs
+
+#Heatwave data
+#Data is only annuall so need to fix
+heatwave <- ecodata::heatwave
+
+#Sea surface temerpature anomoly - not as great as bottom temp anomoly but still good
+sst <- ecodata::seasonal_oisst_anom
+
+#Storminess
+#Data is only annually so need to fix
+storms <- ecodata::storminess
+```
+
+Four of the five data sets are only reported annually. So, we should make them quarterly so that we can merge them with our `replic` data set.
+
+\--
+
+First thing we actually want to do is make the tables "pivot wider".
+
+For `bottom_temp`: Also, the GOM and GB (George's Bank) observations are different. Thus, when merging with the `replic` data set, we will have to account for that difference. Shouldn't be too hard though - could always use a mutate(EPU=case_when()) and merge on the EPU.
+
+For `heatwave`: Tracks both the intensity and duration of both the Sea-Surface-Temp (SST) and Bottom_Surface_Temp (BST). The variables `duration-BottomDetrended` and `duration-SurfaceDetrended` should describe the duration of heatwaves in a year. Are they summed for the year though?
+
+The detrended in the variable names corresponds to the authors taking away the trend of global warming from the data. Meaning any deviation from 0 in the data corresponds with extra heating or cooling that can be attriubted to region specific climate change. For more information refer to the link at the bottom of the help page for the `heatwave` data set.
+
+For `sst`: The link to the documentation can be seen [here](https://noaa-edab.github.io/tech-doc/seasonal-sst-anomalies.html). Describes the exact coding of "spring", "summer", "fall", and "winter". And, I recode into quarters to make my life easier since they have exact overlap.
+
+```{r}
+#This cell reformats the ecodata data sets into more usable formats
+
+#Widen the bottom_temp data set and resrtic for only observations we care about
+bottom_temp <- bottom_temp %>% 
+  #Restrict to only the time frame in question
+  filter(Time >= 2010 & Time <= 2019) %>% 
+  #Exclude MAB and SS
+  filter(EPU != "MAB" & EPU != "SS") %>% 
+  #Pivot the table wider - take observations from the same year and make them into columns instead of redundant rows to make mergering easier later
+  pivot_wider(names_from = Var, values_from = Value)
+
+habs <- habs %>% 
+  #Restrict area to only GOM in aggregate
+  filter(Var == "Gulf_of_Maine_All") %>% 
+  #Only include years we care about
+  filter(Time >= 2010 & Time <= 2019) %>% 
+  #Rename the Value to the variable it's observing
+  rename(Algae = Value) %>% 
+  #Select only the columns needed for merging
+  dplyr::select(!c(Source, Var))
+
+heatwave <- heatwave %>% 
+  #Restict area to George's Bank (GB) and Gulf of Maine (GOM)
+  filter(EPU == "GB" | EPU == "GOM") %>% 
+  #Restrict time frame to 2010-2019
+  filter(Time >= 2010 & Time <= 2019) %>% 
+  #Keep maximum intensity and duration of SS and BS heatwaves
+  filter(Var != "cumulative intensity-SurfaceDetrended" & Var != "cumulative intensity-BottomDetrended") %>% 
+  #Pivot this wider so that we only have 1 row for each observation in both GB and GOM
+  #Deselect Units because it fucks with the pivot wider function
+  dplyr::select(!Units) %>% 
+  pivot_wider(names_from = Var, values_from = Value)
+
+#SST is an anomoly measure, similar to the heatwave data set - Seems redundant due to the heatwave dataset. Heatwave seems much more complete and has more robust methods
+sst <- sst %>% 
+  #Select years 2010-2019
+  filter(Time >= 2010 & Time <= 2019) %>% 
+  #Recode the time series in terms of quarters instead of seasons to make merge easier later
+  mutate(q = case_when(Var == "Winter" ~ "Q1",
+                       Var == "Spring" ~ "Q2",
+                       Var == "Summer" ~ "Q3",
+                       Var == "Fall" ~ "Q4"),
+         .after = Var) %>% 
+  #Drop the Var colum since it's unnecessary
+  dplyr::select(!Var) %>% 
+  #Filter for only area of interest
+  filter(EPU != "MAB")
+
+#Probably need to come back and make this wider, but this works for now
+storms <- storms %>% 
+  #Select only years we care about
+  filter(Year >= 2010 & Year <= 2019) %>% 
+  #Consider only areas of interest
+  filter(EPU == "GOM" | EPU == "GB") %>% 
+  #Group by the year and general region to get a better sense of cumulative storms for this region
+  group_by(Year, Var) %>% 
+  summarize(mean_events = mean(Value),
+            untis = units,
+            EPU = EPU) %>% 
+  #This data represents days in the year that a "storm" was recorded from a wind and wave      perspective
+  #Make the data set tidy where each observation (year) is a row
+  pivot_wider(names_from = Var, values_from = mean_events) %>% 
+  #Take the average of the GOM observations and just use the GB for their respective rows
+  mutate(Gale_Wind = case_when(EPU == "GOM" ~ mean(c(`Eastern Gulf of Maine_GaleWind`, `Western Gulf of Maine_GaleWind`), na.rm = T),
+                               EPU == "GB" ~ `Georges Bank_GaleWind`), .after = EPU) %>% 
+  #Same process as above mutate but for WaveHeight instead
+  mutate(Wave_Height = case_when(EPU == "GOM" ~ mean(c(`Eastern Gulf of Maine_WaveHeight`, `Western Gulf of Maine_WaveHeight`), na.rm = T),
+                               EPU == "GB" ~ `Georges Bank_WaveHeight`), .after = Gale_Wind) %>% 
+  #Select only the columnds that matter for merging
+  dplyr::select(Year, EPU, Gale_Wind, Wave_Height) %>% 
+  #Rename the Year column to Time to make merge easier
+  rename(Time = Year)
+```
+
+Now we can start merging the yearly data sets together
+
+```{r}
+#Join the data sets together
+temp1 <- bottom_temp %>%
+  #Join the heatwave and bottom temp data sets together
+  right_join(heatwave, by = join_by(Time, EPU)) %>%
+  #Select the columns that will be most helpful
+  dplyr::select(Time, EPU, `bottom temp anomaly in situ`, `sst anomaly in situ`, `duration-SurfaceDetrended`, `duration-BottomDetrended`) %>% 
+  #Join again with storms data
+  right_join(storms, by = join_by(Time, EPU)) %>% 
+  #Join again with algae bloom data - Don't have data on GB so might need to come back and alter that for regression
+  left_join(habs, by = join_by(Time, EPU)) %>% 
+  #Repeat each thing for 4 quarters
+  slice(rep(1:n(), each = 4)) %>% 
+  mutate(q = rep(c("Q1","Q2","Q3","Q4"), times=20), .after = Time) %>% 
+  #Rename q to quarter and turn into factor
+  rename(quarter = q) %>% 
+  mutate(quarter = as.factor(quarter))
+```
+
+```{r}
+#Rewrite the EPU's so we can merge data sets
+replic <- replic %>% 
+  mutate(EPU = case_when(stockarea == "CCGOM" ~ "GOM",
+                         stockarea == "GBE" ~ "GB",
+                         stockarea == "GBW" ~ "GB",
+                         stockarea == "GB" ~ "GB",
+                         stockarea == "GOM" ~ "GOM",
+                         #Maddy says that Plaice is normally caught in GB
+                         stockarea == "Unit" ~ "GB",
+                         #SNEMA is closer to GOM than GB so we count it as such
+                         stockarea == "SNEMA" ~ "GOM"), .after = stockcode)
+```
+
+```{r}
+#This chunk appears to join everything together correctly
+
+#Create the merged price and climate data set called "replic2"
+replic2 <- replic %>% 
+  right_join(temp1, join_by("fishing_year"=="Time", EPU, quarter))
+```
+
+## Results
+
+I believe that including the climate change indicators in both hurdles makes the most sense. Since I predicted that climate change will generally affect quota prices this means we should see the climate change affecting both the probability of the quota being greater than 0 (hurdle 1) which implies the quota should be trading at a higher price (hurdle 2). Thus, we should capture both effects by including climate change in both stages of the hurdle model. An additional bonus to the Cragg model compared to the Tobit, including both means that their respective coefficients are independent. Meaning that we could see things like one being positive and one being negative thanks to the Cragg model.
+
+Another shortcoming of Lee and Demarest could be that they didn't count for different stocks as dummy variables in their model. Possibly including this could lead to some more accurate models since not only do stocks have vastly different trading prices from factors such as demand, choke, etc. But in addition, different stocks are impacted differently by climate change. This could in turn mean that there is an interaction effect between the climate change indicators and the stocks.
+
+Some of the variables didn't work in the following models so if the above rational doesn't appear to translate to the model, that's why.
+
+### OLS
+
+The easiest model of them all, OLS, can be run first to see what happens when including climate change data into the models.
+
+```{r}
+lm(data = replic2, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + `duration-SurfaceDetrended`+ Gale_Wind + Wave_Height + quarter) %>% 
+  summary()
+```
+
+```{r}
+#Examine with lots of controls on things such as species, year, EPU, as well as climate
+
+#Cannot include algae in the model
+lm(data = replic2, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + `duration-SurfaceDetrended` + Gale_Wind + Wave_Height + fishing_year + quarter + EPU + stock_id) %>% 
+  summary()
+```
+
+In interesting note is that including the species as a dummy variable almost doubles our $R^2$. Seems like it would be a no brainier to include in the model. I wonder why Lee and Demarest have decided not to include this in their model.
+
+### Hurdle
+
+In this section we recreate the hurdles made from above. I have not idea which ones will fit better so we'll recreate all of them and see which ones turn out the best.
+
+```{r}
+#Surface duration causes problems - "Hessian is singular" but only when using it in the second part of the hurdle
+#Gale Wind also causes problems in both parts of the model
+churdle.1a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + `duration-SurfaceDetrended` + Wave_Height | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + Wave_Height, 
+                 data = replic2,
+                 h2 = TRUE, dist = "n", method = "bhhh") 
+
+churdle.1b <- update(churdle.1a, dist = "ln")
+```
+
+```{r}
+modelsummary(models = list("c1a" = churdle.1a, "c1b" = churdle.1b),
+             stars = c('*' = .1, '**' = .05, '***' = 0.01))
+```
+
+From these initial models we can see that our explanatory power has definitely increased as compared with the models from the no climate change data. We see significance on some of the climate coefficients from the first hurdle but don't see any in the second part of the hurdle. Which I think is very interesting. Below is a continuation of the models, with them becoming more complex.
+
+```{r}
+churdle.2a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + `duration-SurfaceDetrended` + Wave_Height | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + Wave_Height, data = replic2,
+                 h2 = FALSE, dist = "ln", corr = TRUE, method = "bhhh", finalHessian = TRUE)
+
+churdle.2b <- update(churdle.2a, start = coef(churdle.2a), robust = FALSE)
+churdle.2c <- update(churdle.2a, h2 = TRUE)
+churdle.2d <- update(churdle.2c, start = coef(churdle.2c), robust = FALSE)
+```
+
+```{r}
+modelsummary(models = list("c2a" = churdle.2a, "c2b" = churdle.2b, "c2c" = churdle.2c, "c2d"= churdle.2d),
+             stars = c('*' = .1, '**' = .05, '***' = 0.01))
+```
+
+These are the more complex models. Still don't know how to interpret but it looks like the log-likelihood is lower for both so it would appear that these models fit worse.
+
+```{r}
+churdle.3a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + `duration-SurfaceDetrended` + Wave_Height | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + Wave_Height, data = replic2,
+                     h2=FALSE, corr=TRUE, method="bhhh", finalHessian=TRUE)
+churdle.3b <- update(churdle.3a, start = coef(churdle.3a), robust = FALSE)
+churdle.3c <- update(churdle.3a, h2=TRUE)
+churdle.3d <- update(churdle.3c, start = coef(churdle.3c), robust = FALSE)
+```
+
+```{r}
+modelsummary(models = list("c3a" = churdle.3a, "c3b" = churdle.3b, "c3c" = churdle.3c, "c3d"= churdle.3d),
+             stars = c('*' = .1, '**' = .05, '***' = 0.01))
+```
+
+These are the most complex models. Not sure how the differ from the others but they don't have much better log-likelihoods so I would hesitate to use them.
+
+# Further Directions
+
+Obviously we need to figure out exactly what the differences are between these models at an in depth level as well as figure out if our hypothesis is correct. It's looking like it's not sometimes so we'll have to see. This is described in the list below
+
+1.  Write this out an in much more coherent way for the audiences that need to see what I've been doing - Namely Kanae, Departmental Honors Comittee, GMRI presentation and staff
+2.  Find out what the other goodness of fit measures are
+3.  Find out what the coefficients mean - Both in interpretation and in significance
+4.  Have the models output into htmlreg or texreg so that it's prettier
