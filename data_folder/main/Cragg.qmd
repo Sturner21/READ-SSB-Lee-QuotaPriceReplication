@@ -170,9 +170,13 @@ lrtest(L111D, L111I)
 vuongtest(L111D, L111I, type = "nested")
 ```
 
+This Vuong Test examines the probability that the two models considered fit the data equally as likely. The null hypothesis is that they fit equally well, the alternative is that one fits better than the other. It is currently unclear which model fits the data better with this output, but regardless we see a quite large p-value of 0.233 indicating that the null hypothesis is nowhere close to being rejected. Meaning that we can be quite confident that these two models fit the data just as well as each other.
+
 ```{r}
 ndvuongtest(L110D, L011D)
 ```
+
+The negative sign on the `z` value of `ndvuongtest()` would indicate that the p-tobit model (L110D) fits the data better than the three-hurdle/ general selection model (L011D). Additionally, a `z` value this large creates a p-value which is statistically significant. Indicating that there is a significant difference between how the models fit the data. Paired with the parsimony principle (should look this up because I have no idea what it means) this means that we should be picking model L110D to represent our data if we could only choose between L110D and L011D.
 
 This concludes the replication of the documentation.
 
