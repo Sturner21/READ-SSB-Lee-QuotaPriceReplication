@@ -650,6 +650,56 @@ modelsummary(models = list("c3a" = churdle.3a, "c3b" = churdle.3b, "c3c" = churd
 
 These are the most complex models. Not sure how the differ from the others but they don't have much better log-likelihoods so I would hesitate to use them.
 
+## Kanae Recommendations
+
+### 90th Percentile Dummy Variables
+
+We can take some of the climate change variables (namely SST and BST) that we use above and create dummy variables for them to see if they are in the 90th percentile. This should mean that in the years where we see extreme heat deciations that we see changes in the behavior of stocks. This should lead to this dummy variable having a statistically significant and positive impact on the quota price.
+
+```{r}
+#| eval: false
+#Represents the 90th percentile of SST and BST anomolies
+quantile(replic2$`sst anomaly in situ`, probs = .9)
+quantile(replic2$`bottom temp anomaly in situ`, probs = .9)
+```
+
+```{r}
+#Add in the 90th percentile dummy variable for SST and BST
+
+replic2 <- replic2 %>% 
+  #Create the ifelse command to test if the observation makes the 90th percentile cutoff
+  mutate(SST90 = ifelse(`sst anomaly in situ` >= quantile(replic2$`sst anomaly in situ`, probs = .9), 1, 0),.after = `sst anomaly in situ`) %>% 
+  #Repeat but for BST
+  mutate(BST90 = ifelse(`bottom temp anomaly in situ` >= quantile(replic2$`bottom temp anomaly in situ`, probs = .9), 1, 0),.after = `bottom temp anomaly in situ`)
+```
+
+Now that we have added the dummy variable colums we can add it to the respective regressions.
+
+To start, we can apply this to the OLS regression since that the is easiest to preform and interpret. We will postpone doing this with the hurdle model until we have a better understanding of it's output.
+
+```{r}
+lm(data = replic2, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + `bottom temp anomaly in situ` + BST90 + `sst anomaly in situ` + SST90 + `duration-BottomDetrended` + `duration-SurfaceDetrended`+ Gale_Wind + Wave_Height + quarter) %>% 
+  summary()
+```
+
+A couple of interesting notes:
+
+-   SST got dropped because of multi-colinearity. We may find better results if we make this a logarithmic to catch non-linearities
+
+-   The BST90 is highly significant and it has quite a large coefficient relative to almost all other considered variables other than `proportion_observed`
+
+-   BST90 is negative which is quite interesting. I would have expected it to be positive since heatwaves should create more scarcity by driving the fish away. However, this is just an assumption that I have about fish migratory patterns. It is also quite possible that the warmer water does not drive away the fish in the short term but makes them easier to catch. Hence, why the coefficent is negative.
+
+-   There is not a significant jump in $R^2$ or $Adj$ $R^2$ for this model compared to the other one in the climate change section above. I wouldn't expect a huge jump but I did expect more than a negligible amount.
+
+### Adjusted Assessment Years
+
+We know that stock assessments are flawed but they are used to determine the TAC for stocks in a year. However in (Kerr at al., 2022) we know from [this table](https://academic.oup.com/view-large/377923733) that there are some years where the assessment was so flawed it had to go back and be revised(?). This means that going through each year by stock and assigning a dummy variable should allow us to see if these misallocations of stocks have an impact on quota prices. We can infer that significance implies it does because these changes in the stock assessment (are endogenous) are due to mostly climate driven model misspecifications and some over-fishing.
+
+```{r}
+
+```
+
 # Further Directions
 
 Obviously we need to figure out exactly what the differences are between these models at an in depth level as well as figure out if our hypothesis is correct. It's looking like it's not sometimes so we'll have to see. This is described in the list below
