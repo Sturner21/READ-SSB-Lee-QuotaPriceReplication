@@ -617,6 +617,28 @@ modelsummary(models = list("c1a" = churdle.1a, "c1b" = churdle.1b),
              stars = c('*' = .1, '**' = .05, '***' = 0.01))
 ```
 
+Current understanding of model outputs as of 7/19.
+
+### Arguemetns Explained
+
+-   `c1a` - In this model we are, obviously, using a two stage hurdle model represented by the `h2 = TRUE` argument. We are using are assuming that the errors(?) follow a normal distribution which is notated by the `dist = "n"` argument (for further reference check [here](https://christophm.github.io/interpretable-ml-book/extend-lm.html)). We use the "Berndt-Hall-Hall-Hausman" method of maximization represented by the `method = "bhhh"`.
+
+    -   The argument `method = "bhhh"` is not on the `mhurlde` package vignette but on the `maxLik` one. So, to see what it means just type `?maxLik` or `help(maxLik)` into the console.
+
+-   `c1b` -
+
+### Goodness of Fit Explained
+
+GoF -\> Goodness of fit
+
+It should be noted that we actually want to check the goodness of fits with the other functions from the `mhurdle` package such as the `vuongtest()`. But, there are some good outputs just using the `modelsummary` package.
+
+-   `c1a` - In this model (and all models in `mhurdle` as far as I can tell) the `Log.Lik` is an import from the `maxLik` package and represents the log-likelihood of both models together. NOT the zero or count/pos/positive model. This should be reinforced when considering the other GoF measures. The `R2.zero` represents an $R^2$ value for the zero model. In our case, the first hurdle model. The `R2.pos` represents an $R^2$ value for the count (positive) model. In our case, the second hurdle model.
+
+    -   In context for model `c1a` we find that the `Log.Lik` is about -873. Which you can concert to mean something but for us it doesn't mean very much. It is a great baseline for us though, in that we now have a very quick and dirty way that we can check this model to others (namely `c1b`). The `R2.zero` represents the $R^2$ value for the the first hurdle model, which would be about .4. However, my current understanding is that the first hurdle is a logistic (like) regression which would mean this is more like a $pseudo-R^2$ than an actual $R^2$. The `R2.pos` is the $R^2$ for the second hurdle which acts more like an OLS regression which we can tell from the `dist = "n"` argument which means we are predicting a normal distribution for the positive values. We can tell from the almost objectively low value of .18 that this is not doing a very good job at fitting the data.
+
+-   `c1b` -
+
 From these initial models we can see that our explanatory power has definitely increased as compared with the models from the no climate change data. We see significance on some of the climate coefficients from the first hurdle but don't see any in the second part of the hurdle. Which I think is very interesting. Below is a continuation of the models, with them becoming more complex.
 
 ```{r}
@@ -707,4 +729,6 @@ Obviously we need to figure out exactly what the differences are between these m
 1.  Write this out an in much more coherent way for the audiences that need to see what I've been doing - Namely Kanae, Departmental Honors Comittee, GMRI presentation and staff
 2.  Find out what the other goodness of fit measures are
 3.  Find out what the coefficients mean - Both in interpretation and in significance
-4.  Have the models output into htmlreg or texreg so that it's prettier
+4.  Have the models output into htmlreg or texreg so that it's prettier - These won't render in a powerpoint so actually not much of a point to it beyond this document. But we should try and get them to look better in the `modelsummary` package. Or see if texreg has a png or some other kind of picture generator for these tables
+5.  Model the number of trades per year using the same explanatory variables - However we probably want to use a GLM using a Poisson distribution or some other kind of distribution since it probably isn't Gaussian. This would give us some more insight into our prediction that climate change is driving an increase in quota trades which in turn increases their price because of transaction costs
+6.  Building off of point 5, including number of trades in a given year as a predictor should be included in all models considered. Currently, I implicitly assume with this model that the process of climate change -\> more trades -\> higher quota prices occurs by only looking at the effect climate change has on quota prices. But it is also plausible that these models are describing that climate change affects scarcity which in turn drives prices. To better answer my research question, we need to include number of quota trades in a year as a predictor. Probably won't have time to tackle this before school but this would be a good place to head towards for the Departmental Honors project.
