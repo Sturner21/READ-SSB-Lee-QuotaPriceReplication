@@ -633,6 +633,8 @@ lm(data = replic2, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed
 
 In interesting note is that including the species as a dummy variable almost doubles our $R^2$. Seems like it would be a no brainier to include in the model. I wonder why Lee and Demarest have decided not to include this in their model.
 
+As discovered from [here](https://www.andrewheiss.com/blog/2022/05/09/hurdle-lognormal-gaussian-brms/#hurdle-lognormal-model-with-fancy-multilevel-things) and above, logging the OLS will probably create a better fitting OLS. So, let's consider log-log, linear-log, and log-linear below. However, when trying to directly take the log of any variable in `replic2` we get an error because `log(0)=-Inf` which causes a problem for the `lm()`. To fix this, one could just add a constant. `log(1)` is an obvious choice since it equals 0. But, at that point we have to seriously consider why we are doing it and what is the point. Honestly, there doesn't seem to be much of one. Since we know that OLS wouldn't fit well anyway and [this article](https://aosmith.rbind.io/2018/09/19/the-log-0-problem/) recommends that you should just use a Tobit model if the 0's in your data are censored. And our hurdle model is a fancy Tobit model so I honestly believe that we should just scrap the log-OLS idea and move on.
+
 ### Hurdle
 
 In this section we recreate the hurdles made from above. I have not idea which ones will fit better so we'll recreate all of them and see which ones turn out the best.
