@@ -260,6 +260,35 @@ replic <- replic %>%
   dplyr::mutate(b = replace_na(b, 0))
 ```
 
+Let's check the distriubtion to make sure that we got it right.
+
+```{r}
+ggplot(data = replic)+
+  aes(x=b)+
+  geom_histogram()+
+  labs(title="Quota Price Distribution",
+       subtitle="After Replacing with 0's",
+       x="Quota Price ($)",
+       y="Observations")
+```
+
+It's also important to see what it looks like on a log scale because of the implications this will have on our modeling with the `mhurdle` package later.
+
+```{r}
+ggplot(data = replic)+
+  aes(x=log(b))+
+  geom_histogram()+
+  #scale_x_continuous(trans = "log10")+
+  labs(title="Quota Price Distribution on Natural Log Scale",
+       subtitle="After Replacing with 0's",
+       x="Quota Price ($, Ln Scale)",
+       y="Observations")
+```
+
+This distribution is not normal, but it is certainly more normal shaped than the one above. This explains why later we find the log-normal models to have a better fit.
+
+In fact, Lee and Demarest already recognized that this exponential distribution fit the data better. Their linear hurdle model would be the equivalent of `dist = "n"` for the model using a normal distribution. Their expoential hurdle model uses the natural log scale `dist = "ln"`. Thus, we can fully replicate Lee and Demarest's findings and the only changes present should be the maximization method that the software uses. For this article, we arbitrarily chose BHHH since that's what is in the documentation and we have not experimented with other algorithms.
+
 # Model - No Climate Change
 
 ## mhurdle package method
@@ -630,6 +659,14 @@ Current understanding of model outputs as of 7/19.
     -   The argument `method = "bhhh"` is not on the `mhurlde` package vignette but on the `maxLik` one. So, to see what it means just type `?maxLik` or `help(maxLik)` into the console.
 
 -   `c1b` -
+
+### Coefficients Explained
+
+While interpreting individal coefficients is difficult I think that since we are using the log normal argument for `c1b` (represented by the `dist="ln"`) we can understand that interpreting the second hurdle model's coefficients is the same as interpreting a log-log OLS model. A similar logic follows for `c1a` only since the `dist` argument changes to `"n"` this means that we can interpret the coefficients as a OLS model.
+
+A follow up question though, does this mean that I could include fixed effects in the second hurdle and make it a fixed effects model? -\>
+
+DEFINETLY SHOULD INCLUDE AT LEAST A TIME SERIES CONTROL SUCH AS YEAR IN SECOND HURDLE. Since the observations are not independent - ie. the quota prices from last year a definitely related to the quota prices this year which is one of the literal textbook examples of the assumptions we make about errors.
 
 ### Goodness of Fit Explained
 
