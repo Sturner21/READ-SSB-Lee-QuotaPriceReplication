@@ -289,6 +289,8 @@ This distribution is not normal, but it is certainly more normal shaped than the
 
 In fact, Lee and Demarest already recognized that this exponential distribution fit the data better. Their linear hurdle model would be the equivalent of `dist = "n"` for the model using a normal distribution. Their expoential hurdle model uses the natural log scale `dist = "ln"`. Thus, we can fully replicate Lee and Demarest's findings and the only changes present should be the maximization method that the software uses. For this article, we arbitrarily chose BHHH since that's what is in the documentation and we have not experimented with other algorithms.
 
+Most of the discoveries made here, as well as those made in the subsections of the Hurlde from the With Climate Change section, were thanks to [this article](https://www.andrewheiss.com/blog/2022/05/09/hurdle-lognormal-gaussian-brms/#hurdle-lognormal-model-with-fancy-multilevel-things). This professor explores what the coefficients mean in a hurdle model as well as exploring what to do when the guide (he made mostly for himself) doesn't work. This is an excellent resource and one that should be read carefully when returning to this project in the F'23-S'24 school year.
+
 # Model - No Climate Change
 
 ## mhurdle package method
