@@ -1,0 +1,52 @@
+---
+title: "REU Research Recap"
+date: 8-04-23
+author: "Sam Turner"
+format: 
+  html:
+    self-contained: true
+    toc: true
+    toc-location: left
+    toc-expand: true
+---
+
+# Purpose
+
+## Goals
+
+The goal of this document is twofold:
+
+1.  Provide a location that I can refer back to in the F'23-S'24 school year where my work and understanding of the research topic that I began for the summer '23 REU at GMRI.
+2.  Create a clean(ish) document that interested parties can read and understand what I'm researching, why it's important, and how the research process was conducted.
+
+## Research Question
+
+Before beginning the discussion of relevance of this research its purpose must first be stated. The goal of this research was to "*quantify the effects climate change has had on the quota prices of Northeast groundfish in the Gulf of Maine and surrounding marine regions*".
+
+### Background
+
+Climate change
+
+Sector management - How it works and why we include surrounding marine regions,
+
+### Relevance
+
+Since Lee and Demarest (2023) made their conclusions of market efficacy without considering climate change, it is quite possible that some of their conclusions are incorrect. In fact, we have seen biologists, ecologists, and many other scientists highlight the danger of omitting climate change from models (Kerr et al. 2022). Economic models are no less prone to this error of conclusions from climate change omission than any other discipline. Thus, I expected to find that some of the conclusions that Lee and Demarest (2023) find with quota market efficiency are flawed.
+
+The sector management system is a very strange, complex, and confusing system and understanding its efficiency is important. If it is not operating as we would expect it to, this would mean that either the fishermen or the consumers are losing out on producer or consumer surplus respectively. There has also been a history of fisheries in the Gulf of Maine collapsing, such as the [shrimp](https://www.bangordailynews.com/2013/12/03/news/regulators-shut-down-gulf-of-maine-shrimp-fishery-say-stock-has-collapsed/) and [herring](https://www.nationalfisherman.com/northeast/feds-declare-east-coast-herring-fishery-a-disasterhttps://www.nationalfisherman.com/northeast/feds-declare-east-coast-herring-fishery-a-disaster) fisheries, so it is far-fetched to think the groundfish fishery could collapse. Preserving the market for all parties is of the utmost importance. And a vital part of maintaining the market is ensuring that it is working well, which is where the Lee and Demarest (2023) analysis comes in.
+
+# Introduction
+
+# Literature Review
+
+# Methods
+
+# Results
+
+## Data
+
+The data used was gathered from two sources. The first is the quota and assorted market data used in the Lee and Demarest (2023) paper. Thankfully, they were gracious enough to make (most) of their data public on [GitHub](https://github.com/NEFSC/READ-SSB-Lee-QuotaPriceReplication). Although, there is almost no documentation for exploring the repository. Luckily, the README for my [GOM-REU](https://github.com/Sturner21/GOM-REU) repository has a navigational section and outlines most of the documents that you'd find helpful.
+
+The second source of data is an R package from NOAA and is called `ecodata`. This has a plethora of semi-clean data sets, some of which are climate change related. I used a couple different data sets in there which are cleaned below.
+
+# Directions For Further Research

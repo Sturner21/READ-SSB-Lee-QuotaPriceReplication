@@ -656,7 +656,7 @@ modelsummary(models = list("c1a" = churdle.1a, "c1b" = churdle.1b),
 
 Current understanding of model outputs as of 7/19.
 
-### Arguemetns Explained
+### Arguments Explained
 
 -   `c1a` - In this model we are, obviously, using a two stage hurdle model represented by the `h2 = TRUE` argument. We are using are assuming that the errors(?) follow a normal distribution which is notated by the `dist = "n"` argument (for further reference check [here](https://christophm.github.io/interpretable-ml-book/extend-lm.html)). We use the "Berndt-Hall-Hall-Hausman" method of maximization represented by the `method = "bhhh"`.
 
@@ -721,7 +721,7 @@ These are the most complex models. Not sure how the differ from the others but t
 
 ### 90th Percentile Dummy Variables
 
-We can take some of the climate change variables (namely SST and BST) that we use above and create dummy variables for them to see if they are in the 90th percentile. This should mean that in the years where we see extreme heat deciations that we see changes in the behavior of stocks. This should lead to this dummy variable having a statistically significant and positive impact on the quota price.
+We can take some of the climate change variables (namely SST and BST) that we use above and create dummy variables for them to see if they are in the 90th percentile. This should mean that in the years where we see extreme heat deviations that we see changes in the behavior of stocks. This should lead to this dummy variable having a statistically significant and positive impact on the quota price.
 
 ```{r}
 #| eval: false
@@ -740,7 +740,7 @@ replic2 <- replic2 %>%
   mutate(BST90 = ifelse(`bottom temp anomaly in situ` >= quantile(replic2$`bottom temp anomaly in situ`, probs = .9), 1, 0),.after = `bottom temp anomaly in situ`)
 ```
 
-Now that we have added the dummy variable colums we can add it to the respective regressions.
+Now that we have added the dummy variable columns we can add it to the respective regressions.
 
 To start, we can apply this to the OLS regression since that the is easiest to preform and interpret. We will postpone doing this with the hurdle model until we have a better understanding of it's output.
 
@@ -761,10 +761,42 @@ A couple of interesting notes:
 
 ### Adjusted Assessment Years
 
-We know that stock assessments are flawed but they are used to determine the TAC for stocks in a year. However in (Kerr at al., 2022) we know from [this table](https://academic.oup.com/view-large/377923733) that there are some years where the assessment was so flawed it had to go back and be revised(?). This means that going through each year by stock and assigning a dummy variable should allow us to see if these misallocations of stocks have an impact on quota prices. We can infer that significance implies it does because these changes in the stock assessment (are endogenous) are due to mostly climate driven model misspecifications and some over-fishing.
+We know that stock assessments are flawed but they are used to determine the TAC for stocks in a year. However in (Kerr at al., 2022) we know from [this table](https://academic.oup.com/view-large/377923733) that there are some years where the assessment of the spawning stock biomass (SSB) was so flawed it had to go back and be revised. This means that going through each year by stock and assigning a dummy variable should allow us to see if these misallocations of stocks have an impact on quota prices. We can infer that significance implies it does because these changes in the stock assessment (are endogenous) are due to mostly climate driven model misspecifications and some over-fishing.
 
 ```{r}
+#Add in dummy variable for SSB getting revised after-the-fact because previous estimations were realized to be incorrect
 
+replic2 %>% 
+  mutate(stock_adjustment = case_when(
+    #George's Bank Cod
+    
+    #Gulf of Maine Cod
+    
+    #George's Bank Haddock
+    
+    #Gulf of Maine Haddock
+    
+    #George's Bank Yellowtail Flounder
+    
+    #Cape Cod and Gulf of Maine Yellowtail Flounder
+    stock_id == "YELCCGM" & fishing_year == 2012 ~ 1,
+    stock_id == "YELCCGM" & fishing_year == 2015 ~ 1,
+    stock_id == "YELCCGM" & fishing_year == 2017 ~ 1,
+    stock_id == "YELCCGM" & fishing_year == 2019 ~ 1,
+    
+    #George's Bank Winter Flounder
+    
+    #Witch Flounder
+    
+    #American Plaice
+    
+    #Pollock
+    
+    #White Hake
+    
+    #Set the default value of the column to 0 for all the stocks which didn't get SSB revised
+    .default = 0
+  ), .after = EPU)
 ```
 
 # Further Directions
