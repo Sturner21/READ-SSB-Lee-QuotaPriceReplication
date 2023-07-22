@@ -765,18 +765,34 @@ We know that stock assessments are flawed but they are used to determine the TAC
 
 ```{r}
 #Add in dummy variable for SSB getting revised after-the-fact because previous estimations were realized to be incorrect
+#Dummy "stock_adjustment": 0 = no adjustment for stock in given year, 1 = adjustment made to stock in given year
 
-replic2 %>% 
+replic3 <- replic2 %>% 
   mutate(stock_adjustment = case_when(
     #George's Bank Cod
+    stock_id == "CODGBE" & fishing_year == 2012 ~ 1,
+    stock_id == "CODGBW" & fishing_year == 2012 ~ 1,
+    stock_id == "CODGBE" & fishing_year == 2013 ~ 1,
+    stock_id == "CODGBW" & fishing_year == 2013 ~ 1,
     
     #Gulf of Maine Cod
+    stock_id == "CODGMSS" & fishing_year == 2019 ~ 1,
     
     #George's Bank Haddock
+    stock_id == "HADGBE" & fishing_year == 2015 ~ 1,
+    stock_id == "HADGBW" & fishing_year == 2015 ~ 1,
+    stock_id == "HADGBE" & fishing_year == 2017 ~ 1,
+    stock_id == "HADGBW" & fishing_year == 2017 ~ 1,
+    stock_id == "HADGBE" & fishing_year == 2019 ~ 1,
+    stock_id == "HADGBW" & fishing_year == 2019 ~ 1,
     
     #Gulf of Maine Haddock
+    stock_id == "HADGM" & fishing_year == 2019 ~ 1,
     
     #George's Bank Yellowtail Flounder
+    stock_id == "YELGB" & fishing_year == 2011 ~ 1,
+    stock_id == "YELGB" & fishing_year == 2012 ~ 1,
+    stock_id == "YELGB" & fishing_year == 2013 ~ 1,
     
     #Cape Cod and Gulf of Maine Yellowtail Flounder
     stock_id == "YELCCGM" & fishing_year == 2012 ~ 1,
@@ -785,19 +801,50 @@ replic2 %>%
     stock_id == "YELCCGM" & fishing_year == 2019 ~ 1,
     
     #George's Bank Winter Flounder
+    stock_id == "FLWGB" & fishing_year == 2015 ~ 1,
+    stock_id == "FLWGB" & fishing_year == 2017 ~ 1,
+    stock_id == "FLWGB" & fishing_year == 2019 ~ 1,
+    stock_id == "FLWGB" & fishing_year == 2020 ~ 1,
     
     #Witch Flounder
+    stock_id == "WITGMMA" & fishing_year == 2015 ~ 1,
     
     #American Plaice
+    stock_id == "PLAGMMA" & fishing_year == 2008 ~ 1,
+    stock_id == "PLAGMMA" & fishing_year == 2012 ~ 1,
+    stock_id == "PLAGMMA" & fishing_year == 2015 ~ 1,
+    stock_id == "PLAGMMA" & fishing_year == 2017 ~ 1,
+    stock_id == "PLAGMMA" & fishing_year == 2019 ~ 1,
     
     #Pollock
+    stock_id == "POKGMASS" & fishing_year == 2015 ~ 1,
+    stock_id == "POKGMASS" & fishing_year == 2017 ~ 1,
+    stock_id == "POKGMASS" & fishing_year == 2019 ~ 1,
     
     #White Hake
+    stock_id == "HKWGMMA" & fishing_year == 2017 ~ 1,
+    stock_id == "HKWGMMA" & fishing_year == 2019 ~ 1,
     
     #Set the default value of the column to 0 for all the stocks which didn't get SSB revised
     .default = 0
   ), .after = EPU)
 ```
+
+Now that we have coded those dummy variables we can run some models to see how these adjustments affect quota prices.
+
+```{r}
+lm(data = replic3, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + `bottom temp anomaly in situ` + BST90 + `sst anomaly in situ` + + `duration-BottomDetrended` + `duration-SurfaceDetrended`+ Gale_Wind + Wave_Height + stock_adjustment + quarter + fishing_year) %>% 
+  summary()
+```
+
+Interestingly, there is no difference in the OLS model after coding it in. And, we can see too that this doesn't affect the significance of the model's predictors, nor the model's explanatory power.
+
+```{r}
+lm(data = replic3, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + `bottom temp anomaly in situ` + BST90 + `sst anomaly in situ` + + `duration-BottomDetrended` + `duration-SurfaceDetrended`+ Gale_Wind + Wave_Height + stock_adjustment + quarter + fishing_year + stock_id) %>% 
+  summary()
+```
+
+Even after accounting for different stock stocks we still don't see the stock adjustment making an impact.
 
 # Further Directions
 
