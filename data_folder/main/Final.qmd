@@ -8,6 +8,8 @@ format:
     toc: true
     toc-location: left
     toc-expand: true
+execute: 
+  warning: false
 ---
 
 # Purpose
@@ -48,5 +50,300 @@ The sector management system is a very strange, complex, and confusing system an
 The data used was gathered from two sources. The first is the quota and assorted market data used in the Lee and Demarest (2023) paper. Thankfully, they were gracious enough to make (most) of their data public on [GitHub](https://github.com/NEFSC/READ-SSB-Lee-QuotaPriceReplication). Although, there is almost no documentation for exploring the repository. Luckily, the README for my [GOM-REU](https://github.com/Sturner21/GOM-REU) repository has a navigational section and outlines most of the documents that you'd find helpful.
 
 The second source of data is an R package from NOAA and is called `ecodata`. This has a plethora of semi-clean data sets, some of which are climate change related. I used a couple different data sets in there which are cleaned below.
+
+## Clean Data
+
+### Clean main Data
+
+The first step to replicating and then expanding on Lee and Demarest's research was making their data usable. Below is the code that was done to prepare their data for examination.
+
+```{r}
+#Load the haven library so that the stata (.dta) data files can be read
+library(tidyverse)
+library(haven)
+
+#Datasets needed should already be in current directory and can be directly accessed with this
+quarterly_fish_prices <- read_dta("quarterly_ols_coefs_from_R_2022_03_04.dta")
+Tspatial_lags <- read_dta("Tspatial_lags_2022_03_04.dta")
+```
+
+```{r}
+#Only select the variables of interest from each data set
+
+#Select variables from quarterly fish prices
+quarterly_fish_prices <-  quarterly_fish_prices %>% 
+  dplyr::select(fishing_year, q_fy, b, dateq, stockcode, stock_id, stock, nespp3, stockarea, spstock2, quota_remaining_BOQ, fraction_remaining_BOQ, proportion_observed, live_priceGDP)
+
+#Select variables of interest from spatial lags
+Tspatial_lags <-  Tspatial_lags %>% 
+  dplyr::select(fishing_year, dateq, stockcode, WTswt_quota_remaining_BOQ, WTDswt_quota_remaining_BOQ)
+```
+
+```{r}
+#Background: there were a different number of observations between the two data sets. The following code corrects for the observations present in "quarterly_fish_prices" which were not present in Tspatial_lags
+
+#Further select down for the variables that are shared between quarterly and Tspatial data sets
+
+#Want to get this to the 672 observations of "Tspatial_lags"
+quarterly_fish_prices <-  quarterly_fish_prices %>% 
+  #Helps get rid of some observations - Gets to 884 rows
+  dplyr::filter(stockcode != 1818 & stockcode != 9999) %>% 
+  #Gets down to 680 rows
+  dplyr::filter(fishing_year >= 2010 & fishing_year <= 2019)
+```
+
+```{r}
+replic <-  dplyr::right_join(Tspatial_lags, quarterly_fish_prices, by = c("fishing_year", "dateq", "stockcode")) %>% 
+  #This filters out the remaining non-overlapping parts of our dataset
+  dplyr::filter(!is.na(WTswt_quota_remaining_BOQ))
+```
+
+```{r}
+#Add in factor variable quarter - Technically is already present, but in the sake of laziness so I can preserve code of regressions I will keep this bit in here. It affects final result in no way, simply makes my life a little easier transfering data from "Cragg.qmd" to here
+
+replic <-  replic %>%
+  #Rearrange 'replic' so that we have each stock in chronological order
+  dplyr::arrange(stockcode) %>% 
+  #Add in a quarter variable
+  dplyr::mutate(quarter=rep(c("Q1","Q2","Q3","Q4"), times=168), .after = fishing_year) %>% 
+  #Make the quarter variable a factor variable so regression recognizes it as a dummy variable
+  dplyr::mutate(quarter = as.factor(quarter))
+```
+
+```{r}
+#Lee & D say on page 8 that any quota price that is either negative or NA was replaced with a 0 in their analysis. So, the following code does the same in my data set
+
+replic <- replic %>%
+  #Stage 1 is to make any negative values into 0's
+  dplyr::mutate(b = case_when(b < 0 ~ 0,
+                              b >=0 ~ b)) %>% 
+  #Stage 2 is to make any NA's into 0's
+  dplyr::mutate(b = replace_na(b, 0))
+```
+
+```{r}
+
+```
+
+\
+\
+\
+\
+\
+\
+
+### Clean and incorporate ecodata
+
+## Comment on Distribution
+
+One of the things highlighted in [this](https://www.andrewheiss.com/blog/2022/05/09/hurdle-lognormal-gaussian-brms/#hurdle-lognormal-model-with-fancy-multilevel-things) EXTREMELY helpful article on implementing hurdle models, we want the distribution of our dependent variable to be as close to normal as possible. Currently, the distribution looks like this:
+
+```{r}
+ggplot(data = replic)+
+  aes(x=b)+
+  geom_histogram()+
+  labs(title="Quota Price Distribution",
+       subtitle="After Replacing with 0's",
+       x="Quota Price ($)",
+       y="Observations")
+```
+
+Needless to say, this is not normal or anything approaching it at first glance. However, if we change the scale of the x-axis to the natural logarithm (log with base *e*), then the story begins to change.
+
+```{r}
+ggplot(data = replic)+
+  aes(x=log(b))+
+  geom_histogram()+
+  labs(title="Quota Price Distribution on Natural Log Scale",
+       subtitle="After Replacing with 0's",
+       x="Quota Price ($, Ln Scale)",
+       y="Observations")
+```
+
+Not perfect, but certainly MUCH more normal than we had before. As we will see soon, this shift which enhances normality leads to the exponential model fitting better than the normal one. If you're curious why, I would refer back to [this article](https://www.andrewheiss.com/blog/2022/05/09/hurdle-lognormal-gaussian-brms/#hurdle-lognormal-model-with-fancy-multilevel-things) again. Andrew Wheiss does a much better job at explaining how it works than I do. It's in the section outlining 0 counts with the GDP per capita and its distribution.
+
+## Model - No Climate Change
+
+We first want to create a baseline as close to Lee and Demarest (2023) as possible. If we were to jump right into modeling with climate change, we would have no idea if the modeling algorithms which differ between R and stata are responsible for the different findings, or if there is something larger at play. Thus, the model summary shown below is the attempt at replicating Table 5 on page 12 of Lee and Demarest (2023).
+
+```{r}
+library(modelsummary)
+library(mhurdle)
+```
+
+```{r}
+#Create the linear and expoential models
+
+#This hurdle model is the linear one, which comes from the 'dist="n"' arguement
+hurdle.1a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter, 
+                 data = replic,
+                 h2 = TRUE, dist = "n", method = "bhhh") 
+
+#This hurdle model is the expoential one, which comes from the 'dist="ln"' arguement
+hurdle.1b <- update(hurdle.1a, dist = "ln")
+```
+
+```{r}
+#Display the hurdle models
+
+modelsummary(models = list("Linear" = hurdle.1a, "Exponential" = hurdle.1b),
+             #Set the stars to signify statistical significance level
+             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Rename the coefficients to make the table presentable
+             coef_rename = c("h1.(Intercept)" = "Intercept [H1]",
+                             "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
+                             "h1.fraction_remaining_BOQ" = "Fraction Quota Remaining [H1]",
+                             "h1.proportion_observed" = "Fraction of Catch Observed [H1]",
+                             "h1.quarterQ2" = "Q2 [H1]",
+                             "h1.quarterQ3" = "Q3 [H1]",
+                             "h1.quarterQ4" = "Q4 [H1]",
+                             "h2.(Intercept)" = "Intercept [H2]",
+                             "h2.live_priceGDP" = "Live Price",
+                             "h2.quota_remaining_BOQ" = "Quota Remaining [H2]",
+                             "h2.fraction_remaining_BOQ" = "Fraction Quota Remaining [H2]",
+                             "h2.proportion_observed" = "Fraction of Catch Observed [H2]",
+                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining",
+                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining",
+                             "h2.quarterQ2" = "Q2 [H2]",
+                             "h2.quarterQ3" = "Q3 [H2]",
+                             "h2.quarterQ4" = "Q4 [H2]"),
+             coef_omit = "sd.sd|pos",
+             gof_omit = "dpar",
+             gof_map = list(
+               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
+               list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
+               list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
+               list("raw" = "R2.zero", "clean" = "$R^2$ [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "$R^2$ [Count]", "fmt" = 3),
+               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
+             ))
+```
+
+This is an excellent time to explain how to interpret this type of a hurdle model in context:
+
+This hurdle model is basically two models working in tandem. The first model is a logistic regression and its independent variables are denoted with the `[H1]` tag in the model summary. This logistic regression is taking the independent variables and predicting whether the dependent variable, in this case the quota price, is either 0 or positive (in which case it assigns a value of 1 to the quota). The coefficients in the first hurdle describe whether the variable is associated with an increased or decreased probability the quota will trade at a price depending on the sign of the coefficient. If the logistic regression model has determined that the hurdle has been cleared (ie. the cut-off was reached) then it uses the observations in an OLS regression to find what variables influence the price of the quotas. (As a side note, this ability to use different variables in the different hurdles is what separates Cragg's hurdle model from a Tobit model). The OLS coefficients from the second hurdle can be interpreted just as you would with any other OLS regression. The benefit of using this hurdle model is that we can save the 0 observations without them having a large pull on the OLS coefficients so we get a better sense of what actually starts affecting the dependent variable, in this case quota price. The goodness of fit interpretations are fairly straightforward. Before discussing what has been printed in the model summary it is important to discuss what has not been printed. A variable called `dpar`. I have no idea what this thing is other than it has something to do with the "hessian" which is a matrix filled with partial derivatives related to the models. I can't understand it when looking it up online since I haven't taken Linear Algebra yet, but if you were to just render this model summary it would appear. With that out of the way, understanding the other goodness of fit statistics is easy. `N`, `N [0]`, and `N [Count]` are all simply the number of observations in our data set. While `N [0]` is the number of observations we have where the quota price is equal to 0 and `N [Count]` is the number of observations we have where the quota price is not equal to 0. The `R2 [0]` is the $R^2$ value for the logistic regression. It has the 0 in the name because it is commonly known as the 0 regression since it the part of the model which describes the 0's. The `R2 [Count]` is the $R^2$ value for the OLS regression. It is called count because it describes the data which has a count or a positive amount. I am unsure if these are pure, adjusted, or pseudo $R^2$'s as the documentation is very unclear and often you have to dive down deep rabbit holes to find out what them mean. For example, the description of Log Likelihood is hidden in another package and the authors of `mhurdle` only leave a one line comment telling you to go looking there for it. In any case, this brings us finally to the Log Likelihood value. This describes the whole model (both `H1` and `H2`) and should be interpreted as any other log likelihood would be, only in comparison of fit between similar models and never absolutely.
+
+This is also a good point to state that I don't know what the cut-off is for the model. Finding resources that can coherently describe hurdle models is very difficult and I have yet to come across one that discusses exactly what the cut-off is.
+
+```{r}
+#Also important is the OLS regression
+
+OLS_replic <- lm(data = replic, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter)
+```
+
+```{r}
+#Display the OLS replication
+modelsummary(models = list("OLS" = OLS_replic),
+             #Set the stars to signify statistical significance level
+             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Rename the coefficients to make the table presentable
+             coef_rename = c("(Intercept)" = "Intercept",
+                             "live_priceGDP" = "Live Price",
+                             "quota_remaining_BOQ" = "Quota Remaining",
+                             "proportion_observed" = "Fraction of Catch Observed",
+                             "WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining",
+                             "WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining",
+                             "quarterQ2" = "Q2",
+                             "quarterQ3" = "Q3",
+                             "quarterQ4" = "Q4"),
+             gof_map = list(
+               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
+               list("raw" = "r.squared", "clean" = "$R^2$", "fmt" = 3),
+               list("raw" = "adj.r.squared", "clean" = "Adj. $R^2$", "fmt" = 3),
+               list("raw" = "aic", "clean" = "AIC", "fmt" = 3),
+               list("raw" = "bic", "clean" = "BIC ", "fmt" = 3),
+               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
+             ))
+```
+
+This model output should need no explanation, since it is a standard OLS regression.
+
+One interesting control to consider that Lee and Demarest (2023) left out is a time series control. They kind of controlled for this with by including the quarters but including the year should also capture market trends and expectations which are endogenous(?) to the model.
+
+```{r}
+#Simply add fishing year into the equation eith the same exact code as above
+hurdle.1aa <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter + fishing_year, 
+                 data = replic,
+                 h2 = TRUE, dist = "n", method = "bhhh") 
+
+hurdle.1ab <- update(hurdle.1aa, dist = "ln")
+```
+
+```{r}
+#Display the replicated Linear and Expoential models but with a time series control
+modelsummary(models = list("Linear Time Series" = hurdle.1aa, "Exponential Time Series" = hurdle.1ab),
+             #Set the stars to signify statistical significance level
+             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Rename the coefficients to make the table presentable
+             coef_rename = c("h1.(Intercept)" = "Intercept [H1]",
+                             "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
+                             "h1.fraction_remaining_BOQ" = "Fraction Quota Remaining [H1]",
+                             "h1.proportion_observed" = "Fraction of Catch Observed [H1]",
+                             "h1.quarterQ2" = "Q2 [H1]",
+                             "h1.quarterQ3" = "Q3 [H1]",
+                             "h1.quarterQ4" = "Q4 [H1]",
+                             "h2.(Intercept)" = "Intercept [H2]",
+                             "h2.live_priceGDP" = "Live Price",
+                             "h2.quota_remaining_BOQ" = "Quota Remaining [H2]",
+                             "h2.fraction_remaining_BOQ" = "Fraction Quota Remaining [H2]",
+                             "h2.proportion_observed" = "Fraction of Catch Observed [H2]",
+                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining",
+                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining",
+                             "h2.quarterQ2" = "Q2 [H2]",
+                             "h2.quarterQ3" = "Q3 [H2]",
+                             "h2.quarterQ4" = "Q4 [H2]",
+                             "h2.fishing_year" = "Year"),
+             coef_omit = "sd.sd|pos",
+             gof_omit = "dpar",
+             gof_map = list(
+               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
+               list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
+               list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
+               list("raw" = "R2.zero", "clean" = "$R^2$ [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "$R^2$ [Count]", "fmt" = 3),
+               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
+             ))
+```
+
+Including the year does not seem to make a large difference in the model's fit. This can quickly be determined by the almost identical log likelihood values between the time series and non-time series models. In addition, the $R^2$ values of both the count and 0 models are also nearly identical between the time series and non-time series models. The only significant difference is between the linear and exponential models themselves, since the exponential fits the count data much better than the linear one does which predicting the 0's virtually just as well.
+
+```{r}
+#Simply add fishing year into the OLS regression. It could have a difference here
+OLS_replic_time_series <- lm(data = replic, b ~ live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter + fishing_year)
+```
+
+```{r}
+#Display the time series replication of the OLS regression
+modelsummary(models = list("OLS" = OLS_replic_time_series),
+             #Set the stars to signify statistical significance level
+             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Rename the coefficients to make the table presentable
+             coef_rename = c("(Intercept)" = "Intercept",
+                             "live_priceGDP" = "Live Price",
+                             "quota_remaining_BOQ" = "Quota Remaining",
+                             "proportion_observed" = "Fraction of Catch Observed",
+                             "WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining",
+                             "WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining",
+                             "quarterQ2" = "Q2",
+                             "quarterQ3" = "Q3",
+                             "quarterQ4" = "Q4",
+                             "fishing_year" = "Year"),
+             gof_map = list(
+               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
+               list("raw" = "r.squared", "clean" = "$R^2$", "fmt" = 3),
+               list("raw" = "adj.r.squared", "clean" = "Adj. $R^2$", "fmt" = 3),
+               list("raw" = "aic", "clean" = "AIC", "fmt" = 3),
+               list("raw" = "bic", "clean" = "BIC ", "fmt" = 3),
+               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
+             ))
+```
+
+Again, not a huge difference when adding in the time series control.
+
+Compare with the image of Table 5 (pictured below) taken from Lee and Demarest (2023) and we can see that our models stack up well with theirs. They are not perfect replications, however I think we can chalk that up to our modeling software being different. I chose R and they chose stata which have different maximization algorithms.
+
+![](images/Table 5.png)
+
+## Model - Climate Change
 
 # Directions For Further Research

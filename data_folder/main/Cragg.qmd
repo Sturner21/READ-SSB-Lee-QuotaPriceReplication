@@ -929,11 +929,15 @@ OLS_full_fixed %>%
 Even after accounting for different stock stocks we still don't see the stock adjustment making an impact.
 
 ```{r}
+#This is a "messy" model output since I have not removed the statistically insignificant variables from the model
+
 #This creates the summary of the two above models
 #Not included is the stock_id dummy variables but all 20 are significant to the 0.05 level except for George's Bank West Cod, Winter Flounder, Cape Cod/Gulf of Maine Yellow(tail?) Flounder, Southern New England Yellow(tail?) flounder
 
 modelsummary(models = list("Time Fixed Effect" = OLS_time_fixed, "Stock and Time Fixed Effect" = OLS_full_fixed),
              stars = c('*' = .05, '**' = .01, '***' = 0.001),
+             #Get rid of the standard errors in the output because it's too many numbers with these huge models
+             statistic = NULL,
              #The renaming of the coefficients is crazy out of order. Just a heads up for when I come back to this
              coef_rename = c("(Intercept)" = "Intercept",
                              "live_priceGDP" = "Live Price",
