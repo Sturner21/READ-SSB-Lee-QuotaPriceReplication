@@ -558,7 +558,7 @@ For `bottom_temp`: Also, the GOM and GB (George's Bank) observations are differe
 
 For `heatwave`: Tracks both the intensity and duration of both the Sea-Surface-Temp (SST) and Bottom_Surface_Temp (BST). The variables `duration-BottomDetrended` and `duration-SurfaceDetrended` should describe the duration of heatwaves in a year. Are they summed for the year though?
 
-The detrended in the variable names corresponds to the authors taking away the trend of global warming from the data. Meaning any deviation from 0 in the data corresponds with extra heating or cooling that can be attriubted to region specific climate change. For more information refer to the link at the bottom of the help page for the `heatwave` data set.
+The detrended in the variable names corresponds to the authors taking away the trend of global warming from the data. Meaning any deviation from 0 in the data corresponds with extra heating or cooling that can be attributed to region specific climate change. For more information refer to the link at the bottom of the help page for the `heatwave` data set.
 
 For `sst`: The link to the documentation can be seen [here](https://noaa-edab.github.io/tech-doc/seasonal-sst-anomalies.html). Describes the exact coding of "spring", "summer", "fall", and "winter". And, I recode into quarters to make my life easier since they have exact overlap.
 

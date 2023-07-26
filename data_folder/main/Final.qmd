@@ -121,18 +121,246 @@ replic <- replic %>%
   dplyr::mutate(b = replace_na(b, 0))
 ```
 
-```{r}
+### Clean and incorporate ecodata
 
+```{r}
+#| eval: false
+
+#Installing ecodata is different than other R packages - Below is the tools you'll need if you're installing it for the first time
+library(devtools)
+remotes::install_github("noaa-edab/ecodata",build_vignettes=TRUE)
+
+#Then just load it like any other library
+library(ecodata)
 ```
 
-\
-\
-\
-\
-\
-\
+```{r}
+#Below are the data sets of interest for this research
 
-### Clean and incorporate ecodata
+#For bottom sea temperature
+#Data is only annually so need to fix
+bottom_temp <- ecodata::bottom_temp
+
+#Harmful algae blooms
+#Data is only annually so need to fix
+habs <- ecodata::habs
+
+#Heatwave data
+#Data is only annuall so need to fix
+heatwave <- ecodata::heatwave
+
+#Sea surface temerpature anomoly - not as great as bottom temp anomoly but still good
+sst <- ecodata::seasonal_oisst_anom
+
+#Storminess
+#Data is only annually so need to fix
+storms <- ecodata::storminess
+```
+
+Some notes from "Cragg.qmd" about the following cell which organizes the ecodata into a more usable format:
+
+For `bottom_temp`: Also, the GOM and GB (George's Bank) observations are different. Thus, when merging with the `replic` data set, we will have to account for that difference. Shouldn't be too hard though - could always use a mutate(EPU=case_when()) and merge on the EPU.
+
+For `heatwave`: Tracks both the intensity and duration of both the Sea-Surface-Temp (SST) and Bottom_Surface_Temp (BST). The variables `duration-BottomDetrended` and `duration-SurfaceDetrended` should describe the duration of heatwaves in a year. Are they summed for the year though?
+
+The detrended in the variable names corresponds to the authors taking away the trend of global warming from the data. Meaning any deviation from 0 in the data corresponds with extra heating or cooling that can be attributed to region specific climate change. For more information refer to the link at the bottom of the help page for the `heatwave` data set.
+
+For `sst`: The link to the documentation can be seen [here](https://noaa-edab.github.io/tech-doc/seasonal-sst-anomalies.html). Describes the exact coding of "spring", "summer", "fall", and "winter". And, I recode into quarters to make my life easier since they have exact overlap.
+
+```{r}
+#This cell reformats the ecodata data sets into more usable formats
+
+#Widen the bottom_temp data set and resrtic for only observations we care about
+bottom_temp <- bottom_temp %>% 
+  #Restrict to only the time frame in question
+  filter(Time >= 2010 & Time <= 2019) %>% 
+  #Exclude MAB and SS
+  filter(EPU != "MAB" & EPU != "SS") %>% 
+  #Pivot the table wider - take observations from the same year and make them into columns instead of redundant rows to make mergering easier later
+  pivot_wider(names_from = Var, values_from = Value)
+
+habs <- habs %>% 
+  #Restrict area to only GOM in aggregate
+  filter(Var == "Gulf_of_Maine_All") %>% 
+  #Only include years we care about
+  filter(Time >= 2010 & Time <= 2019) %>% 
+  #Rename the Value to the variable it's observing
+  rename(Algae = Value) %>% 
+  #Select only the columns needed for merging
+  dplyr::select(!c(Source, Var))
+
+heatwave <- heatwave %>% 
+  #Restict area to George's Bank (GB) and Gulf of Maine (GOM)
+  filter(EPU == "GB" | EPU == "GOM") %>% 
+  #Restrict time frame to 2010-2019
+  filter(Time >= 2010 & Time <= 2019) %>% 
+  #Keep maximum intensity and duration of SS and BS heatwaves
+  filter(Var != "cumulative intensity-SurfaceDetrended" & Var != "cumulative intensity-BottomDetrended") %>% 
+  #Pivot this wider so that we only have 1 row for each observation in both GB and GOM
+  #Deselect Units because it fucks with the pivot wider function
+  dplyr::select(!Units) %>% 
+  pivot_wider(names_from = Var, values_from = Value)
+
+#SST is an anomoly measure, similar to the heatwave data set - Seems redundant due to the heatwave dataset. Heatwave seems much more complete and has more robust methods
+sst <- sst %>% 
+  #Select years 2010-2019
+  filter(Time >= 2010 & Time <= 2019) %>% 
+  #Recode the time series in terms of quarters instead of seasons to make merge easier later
+  mutate(q = case_when(Var == "Winter" ~ "Q1",
+                       Var == "Spring" ~ "Q2",
+                       Var == "Summer" ~ "Q3",
+                       Var == "Fall" ~ "Q4"),
+         .after = Var) %>% 
+  #Drop the Var colum since it's unnecessary
+  dplyr::select(!Var) %>% 
+  #Filter for only area of interest
+  filter(EPU != "MAB")
+
+#Probably need to come back and make this wider, but this works for now
+storms <- storms %>% 
+  #Select only years we care about
+  filter(Year >= 2010 & Year <= 2019) %>% 
+  #Consider only areas of interest
+  filter(EPU == "GOM" | EPU == "GB") %>% 
+  #Group by the year and general region to get a better sense of cumulative storms for this region
+  group_by(Year, Var) %>% 
+  summarize(mean_events = mean(Value),
+            untis = units,
+            EPU = EPU) %>% 
+  #This data represents days in the year that a "storm" was recorded from a wind and wave      perspective
+  #Make the data set tidy where each observation (year) is a row
+  pivot_wider(names_from = Var, values_from = mean_events) %>% 
+  #Take the average of the GOM observations and just use the GB for their respective rows
+  mutate(Gale_Wind = case_when(EPU == "GOM" ~ mean(c(`Eastern Gulf of Maine_GaleWind`, `Western Gulf of Maine_GaleWind`), na.rm = T),
+                               EPU == "GB" ~ `Georges Bank_GaleWind`), .after = EPU) %>% 
+  #Same process as above mutate but for WaveHeight instead
+  mutate(Wave_Height = case_when(EPU == "GOM" ~ mean(c(`Eastern Gulf of Maine_WaveHeight`, `Western Gulf of Maine_WaveHeight`), na.rm = T),
+                               EPU == "GB" ~ `Georges Bank_WaveHeight`), .after = Gale_Wind) %>% 
+  #Select only the columnds that matter for merging
+  dplyr::select(Year, EPU, Gale_Wind, Wave_Height) %>% 
+  #Rename the Year column to Time to make merge easier
+  rename(Time = Year)
+```
+
+```{r}
+#Rewrite the EPU's of replic to be less specified so we can merge data sets
+replic <- replic %>% 
+  mutate(EPU = case_when(stockarea == "CCGOM" ~ "GOM",
+                         stockarea == "GBE" ~ "GB",
+                         stockarea == "GBW" ~ "GB",
+                         stockarea == "GB" ~ "GB",
+                         stockarea == "GOM" ~ "GOM",
+                         #Maddy says that Plaice is normally caught in GB
+                         stockarea == "Unit" ~ "GB",
+                         #SNEMA is closer to GOM than GB so we count it as such
+                         stockarea == "SNEMA" ~ "GOM"), .after = stockcode)
+```
+
+```{r}
+#Join the heat related data sets together (heatwave and bottom_temp)
+temp1 <- bottom_temp %>%
+  #Join the heatwave and bottom temp data sets together
+  right_join(heatwave, by = join_by(Time, EPU)) %>%
+  #Select the columns that will be most helpful
+  dplyr::select(Time, EPU, `bottom temp anomaly in situ`, `sst anomaly in situ`, `duration-SurfaceDetrended`, `duration-BottomDetrended`) %>% 
+  #Join again with storms data
+  right_join(storms, by = join_by(Time, EPU)) %>% 
+  #Join again with algae bloom data - Don't have data on GB so might need to come back and alter that for regression
+  left_join(habs, by = join_by(Time, EPU)) %>% 
+  #Repeat each thing for 4 quarters
+  slice(rep(1:n(), each = 4)) %>% 
+  mutate(q = rep(c("Q1","Q2","Q3","Q4"), times=20), .after = Time) %>% 
+  #Rename q to quarter and turn into factor
+  rename(quarter = q) %>% 
+  mutate(quarter = as.factor(quarter))
+```
+
+```{r}
+#This chunk appears to join everything together correctly
+
+#Create the merged price and climate data set called "replic2"
+replic2 <- replic %>% 
+  right_join(temp1, join_by("fishing_year"=="Time", EPU, quarter))
+```
+
+There were two suggestions from Kanae about how to better improve the model. The first was to consider when we saw comparatively extreme Sea Surface Temperatures (SST's) and Bottom Surface Temperatures (BST's). The most obvious way of doing this was to create a dummy variable in R with a cut-off. We arbitrarily settled on the 90th percentile for this but it could easily have been any other number. Might be worth experiementing with. Possibly using log-standard deviations since we see the quota prices are approaching normality when taking a log scale. The goal of adding the 90th percentile of SST and BST anomaly was to see if extreme heatwaves are reflected in quota prices. We would expect to see that they are since the would drive stocks either deeper or farther north. In either case it would be away from where the fishermen were/are fishing. The second suggestion was to consider whether a stock had been retroactively had its stock assesment changed. This is slightly complicated to explain since it requires summarizing [this paper](https://watermark.silverchair.com/fsac140.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAA1YwggNSBgkqhkiG9w0BBwagggNDMIIDPwIBADCCAzgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMuDCAQBUvFVDDE5hmAgEQgIIDCbvKvXe1ZJlS7Q6bODE2nplq6uFxvy6xnpz_56f3tsJQigWarQnZWHeP3zFHeX12dA2-Bla8udV1gzt_kRf9ywTpq6sxyGuduY05EhOfLS4PKqCn5EQGNWtghLdVBvjyPGf_L6-raF_KFn49VQsWkNdJ9tU6tC1OrEimuYm9JaZ0QJ3-e1rtv1p_kWXIeJ3qmYN09aqHAkoXCPmqBtHe-EKsHRXJTnDgNJm_trhLw0np7WDolNBx1s56PMZaafqFxXEn_T8J4CckCztvFBWvu-za4C6ykfVoiSyIjCsSyXUP6SBOHdUn5sgxBhDUWrL3L1rB6lQw14vf8qE7ZW3SL3oej5xJpZJw4Xbla5czMEzBJmDQcSo7FD00JgN3l_LZbMopQ8PmGnH2ulKabLFdG1--BH6hhBo1nG_76DDg-dJMSBaBzqeHhkw48oa9aIBuw5i5YGOt4TFoYOQfLAbXo_XLrWiiJbbBKo29wxSpxrgwmRGhpGPMe-Qcv_xKax697bBY91e3AHFXA7_zomgnMc0BDipoOznYPjWU6nDGJ5yjT5NiQRaicVr6WhYA4RI2OCHJGehoJ_9qZlZlrRs2t2Ce8HL7qfGlR_zh01jnzJjQgfgwDm-c0naYvZKkVuV4xGLKt8FEPoF5HIBCPgYOsdZErUMkAV8zCmQDdLuqEVlI0-gl0a6il61Rgy-aC47-YHwfLv2RhGIJrZqWsc9MnXamWHSbVOJte7Y1fm-5HqAQnA2PFljnwi2MTtH3XxqP1tmwF5Q82Vi8Mo1D1Dg45Fkj51e46W878swa_SRFgy6jHQHrrjbHBT-iSFFs-9-c3VsbLF9DN9oxs2cor41WTyC0TWGOjBWFxSzT07SGILFF3oFKlc39WQDSGc4KvqiapN1K0kfJOUwO0ODDIpDAP1csUxf-hp9OdvgTduW9KQRuhdRUCNi84yqN8FleE0VcAdyzdVRBang5KOiFQs2fWshzsNftzNsL_E_uSkYxvhzT1WtiCy5RcaQgUIW5-L65zYwTHpNvLwDKGQ) (authored by some GMRI staff) but basically the amount of fish that can be taken from the ocean collectively, known as the Total Allowable Catch (TAC), is determined before the fishing year by suggestions from biologists. In reality it's much more complicated but for our sake that's all we need to know. So, biologists attempt to estimate the spawning stock biomass (SSB) to make an informed decision about the populations ability to reproduce and thus determine how much of it can be taken out. However, (more than) a couple of years we have seen some estimates of the SSB for different stocks so bad that researchers have had to go back and recalculate how many there must have been given where they see the population now. In [this table](https://academic.oup.com/view-large/377923733) from the Kerr et al. (2022) we have documentation of which stocks had to have their populations reevaluated because of over-fishing. Thus, I used this table to add a dummy variable to my data set on whether the stock required an adjustment that year. The goal of the sock adjustment variable was to test whether modeling errors were affect the market of quota prices.
+
+```{r}
+#Add in the 90th percentile dummy variable for SST and BST
+
+replic2 <- replic2 %>% 
+  #Create the ifelse command to test if the observation makes the 90th percentile cutoff
+  mutate(SST90 = ifelse(`sst anomaly in situ` >= quantile(replic2$`sst anomaly in situ`, probs = .9), 1, 0),.after = `sst anomaly in situ`) %>% 
+  #Repeat but for BST
+  mutate(BST90 = ifelse(`bottom temp anomaly in situ` >= quantile(replic2$`bottom temp anomaly in situ`, probs = .9), 1, 0),.after = `bottom temp anomaly in situ`)
+```
+
+```{r}
+#Add in dummy variable for SSB getting revised after-the-fact because previous estimations were realized to be incorrect
+#Dummy "stock_adjustment": 0 = no adjustment for stock in given year, 1 = adjustment made to stock in given year
+
+replic3 <- replic2 %>% 
+  mutate(stock_adjustment = case_when(
+    #George's Bank Cod
+    stock_id == "CODGBE" & fishing_year == 2012 ~ 1,
+    stock_id == "CODGBW" & fishing_year == 2012 ~ 1,
+    stock_id == "CODGBE" & fishing_year == 2013 ~ 1,
+    stock_id == "CODGBW" & fishing_year == 2013 ~ 1,
+    
+    #Gulf of Maine Cod
+    stock_id == "CODGMSS" & fishing_year == 2019 ~ 1,
+    
+    #George's Bank Haddock
+    stock_id == "HADGBE" & fishing_year == 2015 ~ 1,
+    stock_id == "HADGBW" & fishing_year == 2015 ~ 1,
+    stock_id == "HADGBE" & fishing_year == 2017 ~ 1,
+    stock_id == "HADGBW" & fishing_year == 2017 ~ 1,
+    stock_id == "HADGBE" & fishing_year == 2019 ~ 1,
+    stock_id == "HADGBW" & fishing_year == 2019 ~ 1,
+    
+    #Gulf of Maine Haddock
+    stock_id == "HADGM" & fishing_year == 2019 ~ 1,
+    
+    #George's Bank Yellowtail Flounder
+    stock_id == "YELGB" & fishing_year == 2011 ~ 1,
+    stock_id == "YELGB" & fishing_year == 2012 ~ 1,
+    stock_id == "YELGB" & fishing_year == 2013 ~ 1,
+    
+    #Cape Cod and Gulf of Maine Yellowtail Flounder
+    stock_id == "YELCCGM" & fishing_year == 2012 ~ 1,
+    stock_id == "YELCCGM" & fishing_year == 2015 ~ 1,
+    stock_id == "YELCCGM" & fishing_year == 2017 ~ 1,
+    stock_id == "YELCCGM" & fishing_year == 2019 ~ 1,
+    
+    #George's Bank Winter Flounder
+    stock_id == "FLWGB" & fishing_year == 2015 ~ 1,
+    stock_id == "FLWGB" & fishing_year == 2017 ~ 1,
+    stock_id == "FLWGB" & fishing_year == 2019 ~ 1,
+    stock_id == "FLWGB" & fishing_year == 2020 ~ 1,
+    
+    #Witch Flounder
+    stock_id == "WITGMMA" & fishing_year == 2015 ~ 1,
+    
+    #American Plaice
+    stock_id == "PLAGMMA" & fishing_year == 2008 ~ 1,
+    stock_id == "PLAGMMA" & fishing_year == 2012 ~ 1,
+    stock_id == "PLAGMMA" & fishing_year == 2015 ~ 1,
+    stock_id == "PLAGMMA" & fishing_year == 2017 ~ 1,
+    stock_id == "PLAGMMA" & fishing_year == 2019 ~ 1,
+    
+    #Pollock
+    stock_id == "POKGMASS" & fishing_year == 2015 ~ 1,
+    stock_id == "POKGMASS" & fishing_year == 2017 ~ 1,
+    stock_id == "POKGMASS" & fishing_year == 2019 ~ 1,
+    
+    #White Hake
+    stock_id == "HKWGMMA" & fishing_year == 2017 ~ 1,
+    stock_id == "HKWGMMA" & fishing_year == 2019 ~ 1,
+    
+    #Set the default value of the column to 0 for all the stocks which didn't get SSB revised
+    .default = 0
+  ), .after = EPU)
+```
 
 ## Comment on Distribution
 
@@ -271,7 +499,7 @@ hurdle.1ab <- update(hurdle.1aa, dist = "ln")
 
 ```{r}
 #Display the replicated Linear and Expoential models but with a time series control
-modelsummary(models = list("Linear Time Series" = hurdle.1aa, "Exponential Time Series" = hurdle.1ab),
+modelsummary(models = list("Linear Robust Time Series" = hurdle.1aa, "Exponential Robust Time Series" = hurdle.1ab),
              #Set the stars to signify statistical significance level
              stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
              #Rename the coefficients to make the table presentable
@@ -342,8 +570,143 @@ Again, not a huge difference when adding in the time series control.
 
 Compare with the image of Table 5 (pictured below) taken from Lee and Demarest (2023) and we can see that our models stack up well with theirs. They are not perfect replications, however I think we can chalk that up to our modeling software being different. I chose R and they chose stata which have different maximization algorithms.
 
-![](images/Table 5.png)
+![](images/Table%205.png)
+
+We can of course, also make these replication models even more complicated. We can consider whether the error terms of both parts of the hurdle are correlated and set something called the `finalHessian` to `TRUE` in `mhurdle`'s arguments. I do not understand the hessian currently becuase of my lack of linear algebra. Below is an example of considering if the errors of the two parts of the model are correlated.
+
+```{r}
+hurdle.2a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter, data = replic,
+                 h2 = FALSE, dist = "ln", corr = TRUE, method = "bhhh", finalHessian = TRUE)
+
+hurdle.2b <- update(hurdle.2a, start = coef(hurdle.2a), robust = FALSE)
+```
+
+```{r}
+modelsummary(models = list("Exponential Robust" = hurdle.2a, "Exponential Non-Robust" = hurdle.2b),
+             #Set the stars to signify statistical significance level
+             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Rename the coefficients to make the table presentable
+             coef_rename = c("h1.(Intercept)" = "Intercept [H1]",
+                             "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
+                             "h1.fraction_remaining_BOQ" = "Fraction Quota Remaining [H1]",
+                             "h1.proportion_observed" = "Fraction of Catch Observed [H1]",
+                             "h1.quarterQ2" = "Q2 [H1]",
+                             "h1.quarterQ3" = "Q3 [H1]",
+                             "h1.quarterQ4" = "Q4 [H1]",
+                             "h2.(Intercept)" = "Intercept [H2]",
+                             "h2.live_priceGDP" = "Live Price",
+                             "h2.quota_remaining_BOQ" = "Quota Remaining [H2]",
+                             "h2.fraction_remaining_BOQ" = "Fraction Quota Remaining [H2]",
+                             "h2.proportion_observed" = "Fraction of Catch Observed [H2]",
+                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining",
+                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining",
+                             "h2.quarterQ2" = "Q2 [H2]",
+                             "h2.quarterQ3" = "Q3 [H2]",
+                             "h2.quarterQ4" = "Q4 [H2]",
+                             "corr12" = "Correlation of Errors [H1 & H2]"),
+             coef_omit = "sd.sd|pos",
+             gof_omit = "dpar",
+             gof_map = list(
+               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
+               list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
+               list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
+               list("raw" = "R2.zero", "clean" = "$R^2$ [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "$R^2$ [Count]", "fmt" = 3),
+               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
+             ))
+```
+
+Both models considered use an exponential distribution of the errors since we've seen this be a better fit for the count data. Their difference is in whether they use robust (heteroskedastic) or non-robust (homeoskedastic) assumptions about the errors. However, as one can easily see the models are not only (almost) identical, but also have the same significance on their Correlation of Errors term. Meaning twofold: robust and non-robust assumption doesn't matter for this case and there is not significant evidence to suggest that the error terms of the models are correlated. Which I believe means that we can interpret this as model exogeneity.
 
 ## Model - Climate Change
 
+To begin, we should keep the same structure of models as the above section to see how including climate change has impacted the model. However, in the above section we have considered several different ways to look at the hurdle model such as robustness, correlation, etc. Therefore, we should also look at those models for this comparison's sake. Especially considering that we will see the above models become fairly non-robust when we start adding climate data.
+
+```{r}
+#Create the models which include climate change variables
+#Call the "churdles" for "climate hurdle"
+
+#This model is exponential non-correlated robust hurdle model
+churdle.4a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + `duration-SurfaceDetrended` + Wave_Height + BST90 + stock_adjustment | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + Wave_Height + BST90 + stock_adjustment, 
+                 data = replic3,
+                 h2 = TRUE, dist = "ln", method = "bhhh")
+
+#This model creates a exponential correlated robust hurdle model
+churdle.5a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + `duration-SurfaceDetrended` + Wave_Height + BST90 + stock_adjustment | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter + `bottom temp anomaly in situ` + `sst anomaly in situ` + `duration-BottomDetrended` + Wave_Height + BST90 + stock_adjustment, data = replic3,
+                 h2 = FALSE, dist = "ln", corr = TRUE, method = "bhhh", finalHessian = TRUE)
+
+#This model updates churdle.5a to be non-robust
+churdle.5b <- update(churdle.5a, start = coef(churdle.5a), robust = FALSE)
+
+#This model updats churdle.5a to be linear
+churdle.5c <- update(churdle.5a, dist = "n")
+```
+
+```{r}
+#This summarizes the models created in the previous cell
+
+modelsummary(models = list("Linear Robust Correlated Climate" = churdle.5c, "Exponential Robust Correlated Climate" = churdle.5a, "Exponential Non-Robust Correlated Climate" = churdle.5b, "Exponential Robust Non-Correlated Climate" = churdle.4a),
+             #Set the stars to correct significance level
+             stars = c('*' = .05, '**' = .01, '***' = 0.001),
+             #Prevents standard error from being displayed since I think there's too much going on with it
+             statistic = NULL,
+             coef_rename = c("h1.(Intercept)" = "Intercept [H1]",
+                             "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
+                             "h1.fraction_remaining_BOQ" = "Fraction Quota Remaining [H1]",
+                             "h1.proportion_observed" = "Fraction of Catch Observed [H1]",
+                             "h1.quarterQ2" = "Q2 [H1]",
+                             "h1.quarterQ3" = "Q3 [H1]",
+                             "h1.quarterQ4" = "Q4 [H1]",
+                             "h1.`bottom temp anomaly in situ`" = "BST Heatwave Maximum [H1]",
+                             "h1.`sst anomaly in situ`" = "SST Heatwave Maximum [H1]",
+                             "h1.`duration-BottomDetrended`" = "BST Heatwave Duration [H1]",
+                             "h1.`duration-SurfaceDetrended`" = "SST Heatwave Duration [H1]",
+                             "h1.Wave_Height" = "Storm Days (Waves) [H1]",
+                             "h1.BST90" = "BST in 90th Percentile [H1]",
+                             "h1.stock_adjustment" = "Stock Assessment Adjusted Post-Facto [H1]",
+                             "h2.(Intercept)" = "Intercept [H2]",
+                             "h2.live_priceGDP" = "Live Price [H2]",
+                             "h2.quota_remaining_BOQ" = "Quota Remaining [H2]",
+                             "h2.fraction_remaining_BOQ" = "Fraction Quota Remaining [H2]",
+                             "h2.proportion_observed" = "Fraction of Catch Observed [H2]",
+                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining [H2]",
+                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining [H2]",
+                             "h2.quarterQ2" = "Q2 [H2]",
+                             "h2.quarterQ3" = "Q3 [H2]",
+                             "h2.quarterQ4" = "Q4 [H2]",
+                             "h2.`bottom temp anomaly in situ`" = "BST Heatwave Maximum [H2]",
+                             "h2.`sst anomaly in situ`" = "SST Heatwave Maximum [H2]",
+                             "h2.`duration-BottomDetrended`" = "BST Heatwave Duration [H2]",
+                             "h2.Wave_Height" = "Storm Days (Waves) [H2]",
+                             "h2.BST90" = "BST in 90th Percentile [H2]",
+                             "h2.stock_adjustment" = "Stock Assessment Adjusted Post-Facto [H2]",
+                             "corr12" = "Correlation of Errors [H1 & H2]"),
+             coef_omit = "sd.sd|pos",
+             #gof_omit = "dpar",
+             gof_map = list(
+               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
+               list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
+               list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
+               list("raw" = "R2.zero", "clean" = "$R^2$ [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "$R^2$ [Count]", "fmt" = 3),
+               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
+             ))
+```
+
+We can see a couple of different things from these models. In general, almost all of the models first hurdle (the logistic regression) predict 0's at about the same level of competence. All $R^2$'s float between 0.373-0.375. However, we see some decent variation in the $R^2$'s for the count regression (the second hurdle - OLS regression). The Linear Robust Correlated model does the worst job with a count $R^2$ of 0.293. While the Exponential Robust Non-Correlated model does the best job with a count $R^2$ of 0.532. While the other two models have a count $R^2$ of 0.444. Another area where these fits are echoed are in the Log Likelihoods. Since all models have the same $R^2$'s for the 0 count data then we can interpret the differences in their Log Likelihoods as due to the better or worse fit from the $R^2$ of the count data.
+
+Arguably the most interesting finding from including the climate change, playing with the robustness and the correlation is that we see (sometimes high) levels of varying significance on the model's coefficients which Lee and Demarest (2023) suggested would be almost staple in any variation of their model. I at least assume that they would think their findings would be consistent given the language they use describing their statistical significance as well as the conclusions they drew on market efficiency from them. I will not include the intercepts in this discussion since they give us almost no interesting findings.
+For the first model, we see that Fraction of Quota Remaining and all four quarters are the only explanatory variables which remain significant across all models. This leaves Quota Remaining and Fraction of Catch Observed as only sometimes significant. It makes sense that we wouldn't see significance on the Fraction of Catch Observed since we don't even see significance on it in Lee and Demarest (2023). However, it is odd that we don't see the same effect being picked up by both the Quota Remaining and Fraction of Quota Remaining since they are, in effect, measuring the same thing. Which is whether having quota leftover and not traded affects the quota prices. Further consideration as to why we see this is needed. Especially since we see that Quota Remaining is very significant in Lee and Demarest (2023). They don't describe what the cut-offs are for the stars in their paper, but if they're anything like the levels of significance present in R then it means they are significant to a p-value of almost 0.
+Another interesting finding is that many of the climate coefficients are not significant. Bottom Surface temperature is the only one, which kind-of makes sense since we are considering groundfish species which (like the name implies) live near the bottom of the ocean. Thus, it would make sense that bottom temperature would affect them while sea surface temperature may not. However, it is a little odd that the duration of a heatwave does not seem to affect the fish as much as the maximum temperature would, at least as it relates to quota prices. One of the things that Lee and Demarest (2023) harped on in their introduction is that the switch to an ITQ-like system of fishing allows for fishermen to pick the days they want to go out and reduces effort in a good way. We can see this in this model since there is no change in probability of quota price depending on the number of days that in a year which had storms. This shows that fishermen are picking their days to go out on the water and aren't dangerously rushing into the water like they would have when effort was regulated instead of quantity. Interestingly we again don't see an impact on quota prices from the BST 90th percentile dummy variable. Again, I don't have an explanation for why this could be occurring. My best current guess would be that 90th percentile isn't a high enough cut-off for us to see the significance. Considering that BST maximum already only barely reaches significance then it wouldn't be a stretch to say that we might need to get to the 95th or 99th percentile before we start seeing the fish really starting to change their behavior in ways that would dupe fishermen who have been in the area and doing this for decades. Then we also see that the stock adjustment has no affect on the quota prices of the quota. This seems rather improbable and when I discussed this with Kane she agreed. It would be great if we could implement a lag variable to measure this on a stock-by-stock basis since I think that would allow us to capture the affect of having to change the stock measurements with respect to scarcity. However, each species life cycle is different and therefore the lag factor would have to change with the species. That's too much work for this summer and probably when I get back to school too. Especially considering what Amanda (Hart[?]) said about non-Cod/Haddock stocks. (She said they were very understudied and it's hard to get any information on them). 
+For the second model, we see that Live Price, Quota Remaining, and Fraction of Catch Observed are the only variables which are statistically significant across all models. Both Live Price and Quota Remaining make sense as to why they would be important in determining the quota price. However, to see that Fraction of Catch Observed doesn't impact the probability of a quota price being 0 or positive, but then is highly significant to the price of the quota is a head-scratcher and borders on paradoxical. 
+
+
+
+
+```{r}
+#Don't forget to put in the OLS climate change models and discuss them
+```
+
 # Directions For Further Research
+
+One of the most obvious places for imporvement in this research is considering the amount of trades that take place during a quarter as a control. In my climate change models I assume some processes using economic theory that may not be taking place. I assume that climate change is causing an increase in quota trades because we see stock populations shifting unpredictably. Then, from economic theory we assume due to the high transaction costs from some (argueably poor) interesting market design that this will lead to higher quota prices. However, I never formally tested whether whether we actually see more trades occuring from climate change. This would be rather easy to test and an excellent opportunity to use some causal inference techniques since we will need to test against the counter-factual that the market is just maturing. This will probably lend itself well to a diff-in-diff model but we can cross that bridge when we get there.
