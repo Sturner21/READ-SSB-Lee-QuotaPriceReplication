@@ -1,5 +1,6 @@
 ---
-title: "REU Research Recap"
+title: "Fishy Buisness: \"Reeling in\" and Quantifying Impact of Climate Change on Groundfish Quota Prices"
+subtitle: "REU Research Recap" 
 date: 8-04-23
 author: "Sam Turner"
 format: 
@@ -417,6 +418,8 @@ hurdle.1b <- update(hurdle.1a, dist = "ln")
 modelsummary(models = list("Linear" = hurdle.1a, "Exponential" = hurdle.1b),
              #Set the stars to signify statistical significance level
              stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Make the standard errors go away
+             statistic = NULL,
              #Rename the coefficients to make the table presentable
              coef_rename = c("h1.(Intercept)" = "Intercept [H1]",
                              "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
@@ -441,8 +444,10 @@ modelsummary(models = list("Linear" = hurdle.1a, "Exponential" = hurdle.1b),
                list("raw" = "nobs", "clean" = "N", "fmt" = 0),
                list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
                list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
-               list("raw" = "R2.zero", "clean" = "$R^2$ [0]", "fmt" = 3),
-               list("raw" = "R2.pos", "clean" = "$R^2$ [Count]", "fmt" = 3),
+               #This funky "²" can be accessed through the emoji keyboard on mac with
+               #"control+command+space" and searching for super-script
+               list("raw" = "R2.zero", "clean" = "R² [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "R² [Count]", "fmt" = 3),
                list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
              ))
 ```
@@ -464,6 +469,8 @@ OLS_replic <- lm(data = replic, b ~ live_priceGDP + quota_remaining_BOQ + propor
 modelsummary(models = list("OLS" = OLS_replic),
              #Set the stars to signify statistical significance level
              stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Remove the standard errors
+             statistic = NULL,
              #Rename the coefficients to make the table presentable
              coef_rename = c("(Intercept)" = "Intercept",
                              "live_priceGDP" = "Live Price",
@@ -476,8 +483,10 @@ modelsummary(models = list("OLS" = OLS_replic),
                              "quarterQ4" = "Q4"),
              gof_map = list(
                list("raw" = "nobs", "clean" = "N", "fmt" = 0),
-               list("raw" = "r.squared", "clean" = "$R^2$", "fmt" = 3),
-               list("raw" = "adj.r.squared", "clean" = "Adj. $R^2$", "fmt" = 3),
+               #This funky "²" can be accessed through the emoji keyboard on mac with
+               #"control+command+space" and searching for super-script
+               list("raw" = "r.squared", "clean" = "R²", "fmt" = 3),
+               list("raw" = "adj.r.squared", "clean" = "Adj. R²", "fmt" = 3),
                list("raw" = "aic", "clean" = "AIC", "fmt" = 3),
                list("raw" = "bic", "clean" = "BIC ", "fmt" = 3),
                list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
@@ -502,6 +511,8 @@ hurdle.1ab <- update(hurdle.1aa, dist = "ln")
 modelsummary(models = list("Linear Robust Time Series" = hurdle.1aa, "Exponential Robust Time Series" = hurdle.1ab),
              #Set the stars to signify statistical significance level
              stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Remove the standard errors
+             statistic = NULL,
              #Rename the coefficients to make the table presentable
              coef_rename = c("h1.(Intercept)" = "Intercept [H1]",
                              "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
@@ -527,8 +538,10 @@ modelsummary(models = list("Linear Robust Time Series" = hurdle.1aa, "Exponentia
                list("raw" = "nobs", "clean" = "N", "fmt" = 0),
                list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
                list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
-               list("raw" = "R2.zero", "clean" = "$R^2$ [0]", "fmt" = 3),
-               list("raw" = "R2.pos", "clean" = "$R^2$ [Count]", "fmt" = 3),
+               #This funky "²" can be accessed through the emoji keyboard on mac with
+               #"control+command+space" and searching for super-script
+               list("raw" = "R2.zero", "clean" = "R² [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "R² [Count]", "fmt" = 3),
                list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
              ))
 ```
@@ -545,6 +558,8 @@ OLS_replic_time_series <- lm(data = replic, b ~ live_priceGDP + quota_remaining_
 modelsummary(models = list("OLS" = OLS_replic_time_series),
              #Set the stars to signify statistical significance level
              stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Remove standard errors
+             statistic = NULL,
              #Rename the coefficients to make the table presentable
              coef_rename = c("(Intercept)" = "Intercept",
                              "live_priceGDP" = "Live Price",
@@ -558,8 +573,10 @@ modelsummary(models = list("OLS" = OLS_replic_time_series),
                              "fishing_year" = "Year"),
              gof_map = list(
                list("raw" = "nobs", "clean" = "N", "fmt" = 0),
-               list("raw" = "r.squared", "clean" = "$R^2$", "fmt" = 3),
-               list("raw" = "adj.r.squared", "clean" = "Adj. $R^2$", "fmt" = 3),
+               #This funky "²" can be accessed through the emoji keyboard on mac with
+               #"control+command+space" and searching for super-script
+               list("raw" = "r.squared", "clean" = "R²", "fmt" = 3),
+               list("raw" = "adj.r.squared", "clean" = "Adj. R²", "fmt" = 3),
                list("raw" = "aic", "clean" = "AIC", "fmt" = 3),
                list("raw" = "bic", "clean" = "BIC ", "fmt" = 3),
                list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
@@ -585,6 +602,8 @@ hurdle.2b <- update(hurdle.2a, start = coef(hurdle.2a), robust = FALSE)
 modelsummary(models = list("Exponential Robust" = hurdle.2a, "Exponential Non-Robust" = hurdle.2b),
              #Set the stars to signify statistical significance level
              stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Remove standard errors
+             statistic = NULL,
              #Rename the coefficients to make the table presentable
              coef_rename = c("h1.(Intercept)" = "Intercept [H1]",
                              "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
@@ -610,13 +629,15 @@ modelsummary(models = list("Exponential Robust" = hurdle.2a, "Exponential Non-Ro
                list("raw" = "nobs", "clean" = "N", "fmt" = 0),
                list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
                list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
-               list("raw" = "R2.zero", "clean" = "$R^2$ [0]", "fmt" = 3),
-               list("raw" = "R2.pos", "clean" = "$R^2$ [Count]", "fmt" = 3),
+               #This funky "²" can be accessed through the emoji keyboard on mac with
+               #"control+command+space" and searching for super-script
+               list("raw" = "R2.zero", "clean" = "R² [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "R² [Count]", "fmt" = 3),
                list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
              ))
 ```
 
-Both models considered use an exponential distribution of the errors since we've seen this be a better fit for the count data. Their difference is in whether they use robust (heteroskedastic) or non-robust (homeoskedastic) assumptions about the errors. However, as one can easily see the models are not only (almost) identical, but also have the same significance on their Correlation of Errors term. Meaning twofold: robust and non-robust assumption doesn't matter for this case and there is not significant evidence to suggest that the error terms of the models are correlated. Which I believe means that we can interpret this as model exogeneity.
+Both models considered use an exponential distribution of the errors since we've seen this be a better fit for the count data. Their difference is in whether they use robust (heteroskedastic) or non-robust (homeoskedastic) assumptions about the errors while considering if the errors are correlated. However, as one can easily see the models are not only (almost) identical, but also have the same significance on their Correlation of Errors term. Meaning twofold: robust and non-robust assumption doesn't matter for this case and there is not significant evidence to suggest that the error terms of the models are correlated. Which I believe means that we can interpret this as model exogeneity.
 
 ## Model - Climate Change
 
@@ -647,7 +668,7 @@ churdle.5c <- update(churdle.5a, dist = "n")
 
 modelsummary(models = list("Linear Robust Correlated Climate" = churdle.5c, "Exponential Robust Correlated Climate" = churdle.5a, "Exponential Non-Robust Correlated Climate" = churdle.5b, "Exponential Robust Non-Correlated Climate" = churdle.4a),
              #Set the stars to correct significance level
-             stars = c('*' = .05, '**' = .01, '***' = 0.001),
+             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
              #Prevents standard error from being displayed since I think there's too much going on with it
              statistic = NULL,
              coef_rename = c("h1.(Intercept)" = "Intercept [H1]",
@@ -687,17 +708,67 @@ modelsummary(models = list("Linear Robust Correlated Climate" = churdle.5c, "Exp
                list("raw" = "nobs", "clean" = "N", "fmt" = 0),
                list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
                list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
-               list("raw" = "R2.zero", "clean" = "$R^2$ [0]", "fmt" = 3),
-               list("raw" = "R2.pos", "clean" = "$R^2$ [Count]", "fmt" = 3),
+               #This funky "²" can be accessed through the emoji keyboard on mac with
+               #"control+command+space" and searching for super-script
+               list("raw" = "R2.zero", "clean" = "R² [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "R² [Count]", "fmt" = 3),
+               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
+             ))
+```
+
+This is really hard to read because of how long it is. Let's cut this down to only the variables which are significant across models.
+
+```{r}
+#Same as above cell but leave out non-statistically-significant results
+
+
+modelsummary(models = list("Linear Robust Correlated Climate" = churdle.5c, "Exponential Robust Correlated Climate" = churdle.5a, "Exponential Non-Robust Correlated Climate" = churdle.5b, "Exponential Robust Non-Correlated Climate" = churdle.4a),
+             #Set the stars to correct significance level
+             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Prevents standard error from being displayed since I think there's too much going on with it
+             statistic = NULL,
+             
+             coef_map = c("h1.(Intercept)" = "Intercept [H1]",
+                             "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
+                             "h1.fraction_remaining_BOQ" = "Fraction Quota Remaining [H1]",
+                             "h1.proportion_observed" = "Fraction of Catch Observed [H1]",
+                             "h1.quarterQ2" = "Q2 [H1]",
+                             "h1.quarterQ3" = "Q3 [H1]",
+                             "h1.quarterQ4" = "Q4 [H1]",
+                             "h1.`bottom temp anomaly in situ`" = "BST Heatwave Maximum [H1]",
+                             "h1.`duration-SurfaceDetrended`" = "SST Heatwave Duration [H1]",
+                             "h1.Wave_Height" = "Storm Days (Waves) [H1]",
+                             "h2.(Intercept)" = "Intercept [H2]",
+                             "h2.live_priceGDP" = "Live Price [H2]",
+                             "h2.quota_remaining_BOQ" = "Quota Remaining [H2]",
+                             "h2.fraction_remaining_BOQ" = "Fraction Quota Remaining [H2]",
+                             "h2.proportion_observed" = "Fraction of Catch Observed [H2]",
+                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining [H2]",
+                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining [H2]",
+                             "h2.quarterQ3" = "Q3 [H2]",
+                             "h2.quarterQ4" = "Q4 [H2]",
+                             "h2.`bottom temp anomaly in situ`" = "BST Heatwave Maximum [H2]",
+                             "h2.`sst anomaly in situ`" = "SST Heatwave Maximum [H2]",
+                             "h2.BST90" = "BST in 90th Percentile [H2]"),
+             coef_omit = "sd.sd|pos",
+             #gof_omit = "dpar",
+             gof_map = list(
+               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
+               list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
+               list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
+               #This funky "²" can be accessed through the emoji keyboard on mac with
+               #"control+command+space" and searching for super-script
+               list("raw" = "R2.zero", "clean" = "R² [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "R² [Count]", "fmt" = 3),
                list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
              ))
 ```
 
 We can see a couple of different things from these models. In general, almost all of the models first hurdle (the logistic regression) predict 0's at about the same level of competence. All $R^2$'s float between 0.373-0.375. However, we see some decent variation in the $R^2$'s for the count regression (the second hurdle - OLS regression). The Linear Robust Correlated model does the worst job with a count $R^2$ of 0.293. While the Exponential Robust Non-Correlated model does the best job with a count $R^2$ of 0.532. While the other two models have a count $R^2$ of 0.444. Another area where these fits are echoed are in the Log Likelihoods. Since all models have the same $R^2$'s for the 0 count data then we can interpret the differences in their Log Likelihoods as due to the better or worse fit from the $R^2$ of the count data.
 
-Arguably the most interesting finding from including the climate change, playing with the robustness and the correlation is that we see (sometimes high) levels of varying significance on the model's coefficients which Lee and Demarest (2023) suggested would be almost staple in any variation of their model. I at least assume that they would think their findings would be consistent given the language they use describing their statistical significance as well as the conclusions they drew on market efficiency from them. I will not include the intercepts in this discussion since they give us almost no interesting findings. For the first model, we see that Fraction of Quota Remaining and all four quarters are the only explanatory variables which remain significant across all models. This leaves Quota Remaining and Fraction of Catch Observed as only sometimes significant. It makes sense that we wouldn't see significance on the Fraction of Catch Observed since we don't even see significance on it in Lee and Demarest (2023). However, it is odd that we don't see the same effect being picked up by both the Quota Remaining and Fraction of Quota Remaining since they are, in effect, measuring the same thing. Which is whether having quota leftover and not traded affects the quota prices. Further consideration as to why we see this is needed. Especially since we see that Quota Remaining is very significant in Lee and Demarest (2023). They don't describe what the cut-offs are for the stars in their paper, but if they're anything like the levels of significance present in R then it means they are significant to a p-value of almost 0. 
+Arguably the most interesting finding from including the climate change, playing with the robustness and the correlation is that we see (sometimes high) levels of varying significance on the model's coefficients which Lee and Demarest (2023) suggested would be almost staple in any variation of their model. I at least assume that they would think their findings would be consistent given the language they use describing their statistical significance as well as the conclusions they drew on market efficiency from them. I will not include the intercepts in this discussion since they give us almost no interesting findings. For the first model, we see that Fraction of Quota Remaining and all four quarters are the only explanatory variables which remain significant across all models. This leaves Quota Remaining and Fraction of Catch Observed as only sometimes significant. It makes sense that we wouldn't see significance on the Fraction of Catch Observed since we don't even see significance on it in Lee and Demarest (2023). However, it is odd that we don't see the same effect being picked up by both the Quota Remaining and Fraction of Quota Remaining since they are, in effect, measuring the same thing. Which is whether having quota leftover and not traded affects the quota prices. Further consideration as to why we see this is needed. Especially since we see that Quota Remaining is very significant in Lee and Demarest (2023). They don't describe what the cut-offs are for the stars in their paper, but if they're anything like the levels of significance present in R then it means they are significant to a p-value of almost 0.
 
-Another interesting finding is that many of the climate coefficients are not significant. Bottom Surface temperature is the only one, which kind-of makes sense since we are considering groundfish species which (like the name implies) live near the bottom of the ocean. Thus, it would make sense that bottom temperature would affect them while sea surface temperature may not. However, it is a little odd that the duration of a heatwave does not seem to affect the fish as much as the maximum temperature would, at least as it relates to quota prices. One of the things that Lee and Demarest (2023) harped on in their introduction is that the switch to an ITQ-like system of fishing allows for fishermen to pick the days they want to go out and reduces effort in a good way. We can see this in this model since there is no change in probability of quota price depending on the number of days that in a year which had storms. This shows that fishermen are picking their days to go out on the water and aren't dangerously rushing into the water like they would have when effort was regulated instead of quantity. Interestingly we again don't see an impact on quota prices from the BST 90th percentile dummy variable. Again, I don't have an explanation for why this could be occurring. My best current guess would be that 90th percentile isn't a high enough cut-off for us to see the significance. Considering that BST maximum already only barely reaches significance then it wouldn't be a stretch to say that we might need to get to the 95th or 99th percentile before we start seeing the fish really starting to change their behavior in ways that would dupe fishermen who have been in the area and doing this for decades. Then we also see that the stock adjustment has no affect on the quota prices of the quota. This seems rather improbable and when I discussed this with Kanae and she agreed. It would be great if we could implement a lag variable to measure this on a stock-by-stock basis since I think that would allow us to capture the affect of having to change the stock measurements with respect to scarcity. However, each species life cycle is different and therefore the lag factor would have to change with the species. That's too much work for this summer and probably when I get back to school too. Especially considering what Amanda (Hart\[?\]) said about non-Cod/Haddock stocks. (She said they were very understudied and it's hard to get any information on them). For the second model, we see that Live Price, Quota Remaining, and Fraction of Catch Observed are the only variables which are statistically significant across all models. Both Live Price and Quota Remaining make sense as to why they would be important in determining the quota price. However, to see that Fraction of Catch Observed doesn't impact the probability of a quota price being 0 or positive, but then is highly significant to the price of the quota is a head-scratcher and borders on paradoxical. The only interpretation that I'm left with is that only certain species are monitored heavily and those species definitely have a higher price and were never zero which is why it's in the count but not in the zero. From background knowledge I know that there has been a new an increased effort by NOAA with the [help of GMRI to install cameras](https://gmri.org/projects/electronic-monitoring-em/) in an effort to increase compliance in respecting legal sizes of fish through an increase in monitoring effort. It could be that only species whose quotas sell for more (never 0) have experienced this increase in monitoring effort coincidentally. Further investigation is certainly warranted and would be a good place to resume in the school year. Continuing with the trend from the first hurdle we see that the climate variables are not very good at describing the changes we see in quota prices of the fish. Some of the variables are significant in some of the models but there are no variables significant across all models. Yet again pointing to the interesting notion that climate change is not being reflected well in our models. 
+Another interesting finding is that many of the climate coefficients are not significant. Bottom Surface temperature is the only one, which kind-of makes sense since we are considering groundfish species which (like the name implies) live near the bottom of the ocean. Thus, it would make sense that bottom temperature would affect them while sea surface temperature may not. However, it is a little odd that the duration of a heatwave does not seem to affect the fish as much as the maximum temperature would, at least as it relates to quota prices. One of the things that Lee and Demarest (2023) harped on in their introduction is that the switch to an ITQ-like system of fishing allows for fishermen to pick the days they want to go out and reduces effort in a good way. We can see this in this model since there is no change in probability of quota price depending on the number of days that in a year which had storms. This shows that fishermen are picking their days to go out on the water and aren't dangerously rushing into the water like they would have when effort was regulated instead of quantity. Interestingly we again don't see an impact on quota prices from the BST 90th percentile dummy variable. Again, I don't have an explanation for why this could be occurring. My best current guess would be that 90th percentile isn't a high enough cut-off for us to see the significance. Considering that BST maximum already only barely reaches significance then it wouldn't be a stretch to say that we might need to get to the 95th or 99th percentile before we start seeing the fish really starting to change their behavior in ways that would dupe fishermen who have been in the area and doing this for decades. Then we also see that the stock adjustment has no affect on the quota prices of the quota. This seems rather improbable and when I discussed this with Kanae and she agreed. It would be great if we could implement a lag variable to measure this on a stock-by-stock basis since I think that would allow us to capture the affect of having to change the stock measurements with respect to scarcity. However, each species life cycle is different and therefore the lag factor would have to change with the species. That's too much work for this summer and probably when I get back to school too. Especially considering what Amanda (Hart\[?\]) said about non-Cod/Haddock stocks. (She said they were very understudied and it's hard to get any information on them). For the second model, we see that Live Price, Quota Remaining, and Fraction of Catch Observed are the only variables which are statistically significant across all models. Both Live Price and Quota Remaining make sense as to why they would be important in determining the quota price. However, to see that Fraction of Catch Observed doesn't impact the probability of a quota price being 0 or positive, but then is highly significant to the price of the quota is a head-scratcher and borders on paradoxical. The only interpretation that I'm left with is that only certain species are monitored heavily and those species definitely have a higher price and were never zero which is why it's in the count but not in the zero. From background knowledge I know that there has been a new an increased effort by NOAA with the [help of GMRI to install cameras](https://gmri.org/projects/electronic-monitoring-em/) in an effort to increase compliance in respecting legal sizes of fish through an increase in monitoring effort. It could be that only species whose quotas sell for more (never 0) have experienced this increase in monitoring effort coincidentally. Further investigation is certainly warranted and would be a good place to resume in the school year. Continuing with the trend from the first hurdle we see that the climate variables are not very good at describing the changes we see in quota prices of the fish. Some of the variables are significant in some of the models but there are no variables significant across all models. Yet again pointing to the interesting notion that climate change is not being reflected well in our models.
 
 This lack of representation of climate change influence in quota price models could mean a few things. The first, and most probabaly, is that we don't have enough data. Whether that be not far enough forward or backwards since our data only goes from 2010-2019. It's possible that we either haven't seen a threshold reached that will come in the future where we see species really start to leave their historic grounds to get away from warming waters or it's possible that we have seen that threshold but the data available doesn't reach far enough back for us to capture that trend. The second, and less probable of the two given what the current literature of both biology and economics would suggest, is that climate change is not having an impact on these stocks in a way that has been reflected in the quota prices.
 
@@ -711,7 +782,8 @@ OLS_full_fixed <- lm(data = replic3, b ~ live_priceGDP + quota_remaining_BOQ + p
 
 ```{r}
 modelsummary(models = list("Time Fixed Effect" = OLS_time_fixed, "Stock and Time Fixed Effect" = OLS_full_fixed),
-             stars = c('*' = .05, '**' = .01, '***' = 0.001),
+             #The "˙" character is from pressing "option+H"
+             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
              #Get rid of the standard errors in the output because it's too many numbers with these huge models
              statistic = NULL,
              #The renaming of the coefficients is crazy out of order. Just a heads up for when I come back to this
@@ -737,8 +809,10 @@ modelsummary(models = list("Time Fixed Effect" = OLS_time_fixed, "Stock and Time
              coef_omit = "stock_id",
              gof_map = list(
                list("raw" = "nobs", "clean" = "N", "fmt" = 0),
-               list("raw" = "r.squared", "clean" = "$R^2$", "fmt" = 3),
-               list("raw" = "adj.r.squared", "clean" = "Adj. $R^2$", "fmt" = 3),
+               list("raw" = "r.squared", "clean" = "R²", "fmt" = 3),
+               #This funky "²" can be accessed through the emoji keyboard on mac with
+               #"control+command+space" and searching for super-script
+               list("raw" = "adj.r.squared", "clean" = "Adj. R²", "fmt" = 3),
                list("raw" = "aic", "clean" = "AIC", "fmt" = 3),
                list("raw" = "bic", "clean" = "BIC ", "fmt" = 3),
                list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
@@ -747,6 +821,8 @@ modelsummary(models = list("Time Fixed Effect" = OLS_time_fixed, "Stock and Time
 
 # Directions For Further Research
 
-One of the most obvious places for improvement in this research is considering the amount of trades that take place during a quarter as a control. In my climate change models I assume some processes using economic theory that may not be taking place. I assume that climate change is causing an increase in quota trades because we see stock populations shifting unpredictably. Then, from economic theory we assume due to the high transaction costs from some (argueably poor) interesting market design that this will lead to higher quota prices. However, I never formally tested whether whether we actually see more trades occuring from climate change. This would be rather easy to test and an excellent opportunity to use some causal inference techniques since we will need to test against the counter-factual that the market is just maturing. This will probably lend itself well to a diff-in-diff model but we can cross that bridge when we get there.
+One of the most obvious places for improvement in this research is considering the amount of trades that take place during a quarter as a control. In my climate change models I assume some processes using economic theory that may not be taking place. I assume that climate change is causing an increase in quota trades because we see stock populations shifting unpredictably. Then, from economic theory we assume due to the high transaction costs from some (arguably poor) interesting market design that this will lead to higher quota prices. However, I never formally tested whether whether we actually see more trades occurring from climate change. This would be rather easy to test and an excellent opportunity to use some causal inference techniques since we will need to test against the counter-factual that the market is just maturing. This will probably lend itself well to a diff-in-diff model but we can cross that bridge when we get there.
+
+In the back of my mind I should be considering whether the stock is a choke species. Probably these choke species are the ones who are being traded more often. Creating a cut-off and then coding a dummy variable for designated choke speies is similar to the BST90 and SST90 variables for creating a significant variable.
 
 Another area of improvement would be in understanding why, in the climate hurdle models, do we see differences in significance in the same variables across the different hurdles? Such as Fraction of Catch Observed; it is significant in the first hurdle but not the second hurdle model which is very difficult to interpret. Diving into and finding why this is would be very interesting and is something that should be answered before SPIRES in S'24.
