@@ -373,8 +373,10 @@ ggplot(data = replic)+
   geom_histogram()+
   labs(title="Quota Price Distribution",
        subtitle="After Replacing with 0's",
-       x="Quota Price ($)",
+       x="Quota Price (2009 $)",
        y="Observations")
+
+#ggsave("QuotaPriceDist.png", dpi = 320)
 ```
 
 Needless to say, this is not normal or anything approaching it at first glance. However, if we change the scale of the x-axis to the natural logarithm (log with base *e*), then the story begins to change.
@@ -415,29 +417,30 @@ hurdle.1b <- update(hurdle.1a, dist = "ln")
 ```{r}
 #Display the hurdle models
 
-modelsummary(models = list("Linear" = hurdle.1a, "Exponential" = hurdle.1b),
+modelsummary(models = list("Exponential" = hurdle.1b, "Linear" = hurdle.1a),
              #Set the stars to signify statistical significance level
              stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
              #Make the standard errors go away
              statistic = NULL,
              #Rename the coefficients to make the table presentable
-             coef_rename = c("h1.(Intercept)" = "Intercept [H1]",
+             coef_map = c(
                              "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
                              "h1.fraction_remaining_BOQ" = "Fraction Quota Remaining [H1]",
                              "h1.proportion_observed" = "Fraction of Catch Observed [H1]",
                              "h1.quarterQ2" = "Q2 [H1]",
                              "h1.quarterQ3" = "Q3 [H1]",
                              "h1.quarterQ4" = "Q4 [H1]",
-                             "h2.(Intercept)" = "Intercept [H2]",
-                             "h2.live_priceGDP" = "Live Price",
+                             "h1.(Intercept)" = "Intercept [H1]",
+                             "h2.live_priceGDP" = "Live Price [H2]",
                              "h2.quota_remaining_BOQ" = "Quota Remaining [H2]",
                              "h2.fraction_remaining_BOQ" = "Fraction Quota Remaining [H2]",
                              "h2.proportion_observed" = "Fraction of Catch Observed [H2]",
-                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining",
-                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining",
+                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining [H2]",
+                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining [H2]",
                              "h2.quarterQ2" = "Q2 [H2]",
                              "h2.quarterQ3" = "Q3 [H2]",
-                             "h2.quarterQ4" = "Q4 [H2]"),
+                             "h2.quarterQ4" = "Q4 [H2]",
+                             "h2.(Intercept)" = "Intercept [H2]"),
              coef_omit = "sd.sd|pos",
              gof_omit = "dpar",
              gof_map = list(
@@ -826,3 +829,102 @@ One of the most obvious places for improvement in this research is considering t
 In the back of my mind I should be considering whether the stock is a choke species. Probably these choke species are the ones who are being traded more often. Creating a cut-off and then coding a dummy variable for designated choke speies is similar to the BST90 and SST90 variables for creating a significant variable.
 
 Another area of improvement would be in understanding why, in the climate hurdle models, do we see differences in significance in the same variables across the different hurdles? Such as Fraction of Catch Observed; it is significant in the first hurdle but not the second hurdle model which is very difficult to interpret. Diving into and finding why this is would be very interesting and is something that should be answered before SPIRES in S'24.
+
+# Extras
+
+Extra renderings that should not be included in the final draft but are needed to make final presentation at GMRI look good.
+
+```{r}
+modelsummary(models = list("Exponential Robust Correlated Climate" = churdle.5a),
+             #Set the stars to correct significance level
+             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Prevents standard error from being displayed since I think there's too much going on with it
+             statistic = NULL,
+             coef_map = c(
+                             "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
+                             "h1.fraction_remaining_BOQ" = "Fraction Quota Remaining [H1]",
+                             "h1.proportion_observed" = "Fraction of Catch Observed [H1]",
+                             "h1.quarterQ2" = "Q2 [H1]",
+                             "h1.quarterQ3" = "Q3 [H1]",
+                             "h1.quarterQ4" = "Q4 [H1]",
+                             "h1.`bottom temp anomaly in situ`" = "BST Heatwave Maximum [H1]",
+                             "h1.`sst anomaly in situ`" = "SST Heatwave Maximum [H1]",
+                             "h1.`duration-BottomDetrended`" = "BST Heatwave Duration [H1]",
+                             "h1.`duration-SurfaceDetrended`" = "SST Heatwave Duration [H1]",
+                             "h1.Wave_Height" = "Storm Days (Waves) [H1]",
+                             "h1.BST90" = "BST in 90th Percentile [H1]",
+                             "h1.stock_adjustment" = "Stock Assessment Adjusted Post-Facto [H1]",
+                             "h1.(Intercept)" = "Intercept [H1]",
+                             "h2.live_priceGDP" = "Live Price [H2]",
+                             "h2.quota_remaining_BOQ" = "Quota Remaining [H2]",
+                             "h2.fraction_remaining_BOQ" = "Fraction Quota Remaining [H2]",
+                             "h2.proportion_observed" = "Fraction of Catch Observed [H2]",
+                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining [H2]",
+                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining [H2]",
+                             "h2.quarterQ2" = "Q2 [H2]",
+                             "h2.quarterQ3" = "Q3 [H2]",
+                             "h2.quarterQ4" = "Q4 [H2]",
+                             "h2.`bottom temp anomaly in situ`" = "BST Heatwave Maximum [H2]",
+                             "h2.`sst anomaly in situ`" = "SST Heatwave Maximum [H2]",
+                             "h2.`duration-BottomDetrended`" = "BST Heatwave Duration [H2]",
+                             "h2.Wave_Height" = "Storm Days (Waves) [H2]",
+                             "h2.BST90" = "BST in 90th Percentile [H2]",
+                             "h2.stock_adjustment" = "Stock Assessment Adjusted Post-Facto [H2]",
+                             "h2.(Intercept)" = "Intercept [H2]",
+                             "corr12" = "Correlation of Errors [H1 & H2]"),
+             coef_omit = "sd.sd|pos",
+             #gof_omit = "dpar",
+             gof_map = list(
+               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
+               list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
+               list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
+               #This funky "²" can be accessed through the emoji keyboard on mac with
+               #"control+command+space" and searching for super-script
+               list("raw" = "R2.zero", "clean" = "R² [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "R² [Count]", "fmt" = 3),
+               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
+             ))
+```
+
+```{r}
+modelsummary(models = list("Exponential Robust Correlated Climate" = churdle.5a),
+             #Set the stars to correct significance level
+             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
+             #Prevents standard error from being displayed since I think there's too much going on with it
+             statistic = NULL,
+             
+             coef_map = c(
+                             "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
+                             "h1.fraction_remaining_BOQ" = "Fraction Quota Remaining [H1]",
+                             "h1.proportion_observed" = "Fraction of Catch Observed [H1]",
+                             "h1.quarterQ2" = "Q2 [H1]",
+                             "h1.quarterQ3" = "Q3 [H1]",
+                             "h1.quarterQ4" = "Q4 [H1]",
+                             "h1.`bottom temp anomaly in situ`" = "BST Heatwave Maximum [H1]",
+                             
+                             "h1.Wave_Height" = "Storm Days (Waves) [H1]",
+                             "h1.(Intercept)" = "Intercept [H1]",
+                             
+                             "h2.live_priceGDP" = "Live Price [H2]",
+                             "h2.quota_remaining_BOQ" = "Quota Remaining [H2]",
+                             "h2.fraction_remaining_BOQ" = "Fraction Quota Remaining [H2]",
+                             "h2.proportion_observed" = "Fraction of Catch Observed [H2]",
+                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining [H2]",
+                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining [H2]",
+                             "h2.quarterQ3" = "Q3 [H2]",
+                             "h2.quarterQ4" = "Q4 [H2]",
+                             
+                             "h2.(Intercept)" = "Intercept [H2]"),
+             coef_omit = "sd.sd|pos",
+             #gof_omit = "dpar",
+             gof_map = list(
+               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
+               list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
+               list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
+               #This funky "²" can be accessed through the emoji keyboard on mac with
+               #"control+command+space" and searching for super-script
+               list("raw" = "R2.zero", "clean" = "R² [0]", "fmt" = 3),
+               list("raw" = "R2.pos", "clean" = "R² [Count]", "fmt" = 3),
+               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
+             ))
+```
