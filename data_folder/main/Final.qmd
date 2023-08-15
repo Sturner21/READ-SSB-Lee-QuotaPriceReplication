@@ -1,7 +1,7 @@
 ---
 title: "Fishy Buisness: \"Reeling in\" and Quantifying Impact of Climate Change on Groundfish Quota Prices"
 subtitle: "REU Research Recap" 
-date: 8-04-23
+date: 08/04/23
 author: "Sam Turner"
 format: 
   html:
@@ -24,31 +24,35 @@ The goal of this document is twofold:
 
 ## Research Question
 
-Before beginning the discussion of relevance of this research its purpose must first be stated. The goal of this research was to "*quantify the effects climate change has had on the quota prices of Northeast groundfish in the Gulf of Maine and surrounding marine regions*".
+The goal of this research was to "*quantify the effects climate change has had on the quota prices of Northeast groundfish in the Gulf of Maine and surrounding marine regions*".
 
 ### Background
 
-Climate change
+**Sector management** - What is it and how does it work?
 
-Sector management - How it works and why we include surrounding marine regions,
+In 1976 the Magnuson-Stevens Act was passed (Werner 2022) which created precedent for all fisheries in the United States to become biologically and economically sustainable. There were a variety of avenues tried in each fishery to achive this goal. The Northeast Multispecies Fishery, which governs the groundfish industry in the Gulf of Maine, Cape Cod, and George's Bank, was not satisfied with the current results of their regulations and passed Amendement 16 to their management plan in 2009 (Werner 2022). Amendment 16 created the "catch-share" program, which is also known as the quota trading system or better as the sector management system. This meant that in 2010, when the plan went into effect, groundfish fishermen were responsible for organizing themselves into groups which would become known as sectors (Werner 2022, Vasta 2019). The fishermen generally tended to organize into sectors that were differentiated by either fishing gear-type or rough geographic fishing location. The sectors also appointed sector managers (one per sector) who would oversee compliance with regulations, distribute stock quotas, as well as other responsibilities (Vasta 2019).
+
+Stock quotas, otherwise known as Annual Catch Entitlements (ACEs), are portions of the Annual Catch Limits (ACLs) given to sectors (Vasta 2019). The ACLs are determined through biological models and surveying each year by NOAA (Vasta 2019). One of the principle functions of sector managers is distributing the ACEs to the appropriate sector members. Once NOAA has set the ACL and appropriate ACE for each sector, it has no say as to who gets what proportion of the ACE. Portions of ACE are totally determined by sector manager. However, if a sector member is unhappy with their respective quota they are allowed to trade for more. They can either buy/lease a quota or trade for a different quota. Fishermen are allowed to trade with fishermen either in their sector (known as intra-sector trading) or with fishermen outside their sector (known as inter-sector trading) (Vasta 2019). The goal of ACEs and trading was that this would promote self-regulation, efficiency and allow the market to correct any distributional errors in quota allotment (Werner 2022). There is a stark difference in ease of trading quotas within sector as opposed to between sectors. The only approval required for within secotrs is the approval from the sector manager. While between sector trades require approval from sector manager and Northeast Multispecies Fishery. Between sector trades also have a "right-of-first-refusal" where the sector manager has to check with every sector member to make sure that none of them want the quota before being able to consider trading with members of other sectors. Finally, sector managers have to be the ones looking for trades with other sectors, which they do via other sector managers (Vasta 2019). There is no centralized quota market like there is for other financial assets.
+
+These search and bargining costs create barriers to trade. And, as we know from economic theory, barriers to trade create transaction costs which have a variety of effects (Coase 1937). Namely, inefficient allocation of goods (in this case quotas) where people who would use them cannot have access to them because of quotas trading for higher prices than they would without the barriers.
+
+**Climate change** - Why does it matter?
+
+Ultimately, this research project relies on the unpredictability that climate change has on groundfishing in the Gulf of Maine (GOM). We know that climate change is effecting the GOM and surrounding areas at one of the highest rates on the planet, with some estimates saying it is warming faster than 99.9% of the worlds oceans (Andy Pershing's paper from when he was at GMRI). This means that stocks and species of fish are generally moving upward as the decades pass. However, at a year-by-year level the fish are moving unpredictably. When the ocean gets unexpectadly warmer the fish can do any of the following things in the short term, move farther north, go into deeper waters, or both. Sometimes the more stubborn fish do neither. This means that at the vessel level fishermen have little to no idea where stocks are going to be moving in response to these higher temperatures (Klein et al. 2016).
+
+Since these fish are moving more and more unpredictably as climate change worsens, we should expect this to lead to more and more distributional errors by NOAA and the ACE allotment. We should expect these sectors which are organize on rough geographic location to begin to trade quotas at an increased frequency since in the short term they cannot relocate to the new regions the fish are moving to and trading the quotas will help recooperate some cost of operations. In essance, we should expect to see a heavier reliance on the quota trading system due to climate change. And, as we discussed above, the more reliance that is placed on the inter-sector trading system (which this is) should lead to higher quota prices due to the transaction costs from the barriers to trade.
 
 ### Relevance
 
-Since Lee and Demarest (2023) made their conclusions of market efficacy without considering climate change, it is quite possible that some of their conclusions are incorrect. In fact, we have seen biologists, ecologists, and many other scientists highlight the danger of omitting climate change from models (Kerr et al. 2022). Economic models are no less prone to this error of conclusions from climate change omission than any other discipline. Thus, I expected to find that some of the conclusions that Lee and Demarest (2023) find with quota market efficiency are flawed.
+Lee and Demarest (2023) made their conclusions of market efficacy without considering climate change, it is quite possible that some of their conclusions are incorrect. In fact, we have seen biologists, ecologists, and many other scientists highlight the danger of omitting climate change from models (Kerr et al. 2022). Economic models are no less prone to this error of conclusions from climate change omission than any other discipline. Thus, I expected to find that some of the conclusions that Lee and Demarest (2023) find with quota market efficiency are flawed.
 
 The sector management system is a very strange, complex, and confusing system and understanding its efficiency is important. If it is not operating as we would expect it to, this would mean that either the fishermen or the consumers are losing out on producer or consumer surplus respectively. There has also been a history of fisheries in the Gulf of Maine collapsing, such as the [shrimp](https://www.bangordailynews.com/2013/12/03/news/regulators-shut-down-gulf-of-maine-shrimp-fishery-say-stock-has-collapsed/) and [herring](https://www.nationalfisherman.com/northeast/feds-declare-east-coast-herring-fishery-a-disasterhttps://www.nationalfisherman.com/northeast/feds-declare-east-coast-herring-fishery-a-disaster) fisheries, so it is far-fetched to think the groundfish fishery could collapse. Preserving the market for all parties is of the utmost importance. And a vital part of maintaining the market is ensuring that it is working well, which is where the Lee and Demarest (2023) analysis comes in.
-
-# Introduction
-
-# Literature Review
-
-# Methods
 
 # Results
 
 ## Data
 
-The data used was gathered from two sources. The first is the quota and assorted market data used in the Lee and Demarest (2023) paper. Thankfully, they were gracious enough to make (most) of their data public on [GitHub](https://github.com/NEFSC/READ-SSB-Lee-QuotaPriceReplication). Although, there is almost no documentation for exploring the repository. Luckily, the README for my [GOM-REU](https://github.com/Sturner21/GOM-REU) repository has a navigational section and outlines most of the documents that you'd find helpful.
+The data used was gathered from two sources. The first is the quota and assorted market data used in the Lee and Demarest (2023) paper. Thankfully, they were gracious enough to make (most of) their data public on [GitHub](https://github.com/NEFSC/READ-SSB-Lee-QuotaPriceReplication). Although, there is almost no documentation for exploring the repository. Luckily, the README for my [GOM-REU](https://github.com/Sturner21/GOM-REU) repository has a navigational section and outlines most of the documents that you'd find helpful.
 
 The second source of data is an R package from NOAA and is called `ecodata`. This has a plethora of semi-clean data sets, some of which are climate change related. I used a couple different data sets in there which are cleaned below.
 
@@ -129,9 +133,15 @@ replic <- replic %>%
 
 #Installing ecodata is different than other R packages - Below is the tools you'll need if you're installing it for the first time
 library(devtools)
-remotes::install_github("noaa-edab/ecodata",build_vignettes=TRUE)
+remotes::install_github("noaa-edab/ecodata", build_vignettes=TRUE)
 
 #Then just load it like any other library
+library(ecodata)
+```
+
+```{r}
+#The above code chunk won't eval so just use this one to load in ecodata if it's already installed on your system
+
 library(ecodata)
 ```
 
@@ -158,7 +168,7 @@ sst <- ecodata::seasonal_oisst_anom
 storms <- ecodata::storminess
 ```
 
-Some notes from "Cragg.qmd" about the following cell which organizes the ecodata into a more usable format:
+Some notes from "Cragg.qmd" (the intermediary and more messy version of this) about the following cell which organizes the ecodata into a more usable format:
 
 For `bottom_temp`: Also, the GOM and GB (George's Bank) observations are different. Thus, when merging with the `replic` data set, we will have to account for that difference. Shouldn't be too hard though - could always use a mutate(EPU=case_when()) and merge on the EPU.
 
@@ -284,7 +294,7 @@ replic2 <- replic %>%
   right_join(temp1, join_by("fishing_year"=="Time", EPU, quarter))
 ```
 
-There were two suggestions from Kanae about how to better improve the model. The first was to consider when we saw comparatively extreme Sea Surface Temperatures (SST's) and Bottom Surface Temperatures (BST's). The most obvious way of doing this was to create a dummy variable in R with a cut-off. We arbitrarily settled on the 90th percentile for this but it could easily have been any other number. Might be worth experiementing with. Possibly using log-standard deviations since we see the quota prices are approaching normality when taking a log scale. The goal of adding the 90th percentile of SST and BST anomaly was to see if extreme heatwaves are reflected in quota prices. We would expect to see that they are since the would drive stocks either deeper or farther north. In either case it would be away from where the fishermen were/are fishing. The second suggestion was to consider whether a stock had been retroactively had its stock assesment changed. This is slightly complicated to explain since it requires summarizing [this paper](https://watermark.silverchair.com/fsac140.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAA1YwggNSBgkqhkiG9w0BBwagggNDMIIDPwIBADCCAzgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMuDCAQBUvFVDDE5hmAgEQgIIDCbvKvXe1ZJlS7Q6bODE2nplq6uFxvy6xnpz_56f3tsJQigWarQnZWHeP3zFHeX12dA2-Bla8udV1gzt_kRf9ywTpq6sxyGuduY05EhOfLS4PKqCn5EQGNWtghLdVBvjyPGf_L6-raF_KFn49VQsWkNdJ9tU6tC1OrEimuYm9JaZ0QJ3-e1rtv1p_kWXIeJ3qmYN09aqHAkoXCPmqBtHe-EKsHRXJTnDgNJm_trhLw0np7WDolNBx1s56PMZaafqFxXEn_T8J4CckCztvFBWvu-za4C6ykfVoiSyIjCsSyXUP6SBOHdUn5sgxBhDUWrL3L1rB6lQw14vf8qE7ZW3SL3oej5xJpZJw4Xbla5czMEzBJmDQcSo7FD00JgN3l_LZbMopQ8PmGnH2ulKabLFdG1--BH6hhBo1nG_76DDg-dJMSBaBzqeHhkw48oa9aIBuw5i5YGOt4TFoYOQfLAbXo_XLrWiiJbbBKo29wxSpxrgwmRGhpGPMe-Qcv_xKax697bBY91e3AHFXA7_zomgnMc0BDipoOznYPjWU6nDGJ5yjT5NiQRaicVr6WhYA4RI2OCHJGehoJ_9qZlZlrRs2t2Ce8HL7qfGlR_zh01jnzJjQgfgwDm-c0naYvZKkVuV4xGLKt8FEPoF5HIBCPgYOsdZErUMkAV8zCmQDdLuqEVlI0-gl0a6il61Rgy-aC47-YHwfLv2RhGIJrZqWsc9MnXamWHSbVOJte7Y1fm-5HqAQnA2PFljnwi2MTtH3XxqP1tmwF5Q82Vi8Mo1D1Dg45Fkj51e46W878swa_SRFgy6jHQHrrjbHBT-iSFFs-9-c3VsbLF9DN9oxs2cor41WTyC0TWGOjBWFxSzT07SGILFF3oFKlc39WQDSGc4KvqiapN1K0kfJOUwO0ODDIpDAP1csUxf-hp9OdvgTduW9KQRuhdRUCNi84yqN8FleE0VcAdyzdVRBang5KOiFQs2fWshzsNftzNsL_E_uSkYxvhzT1WtiCy5RcaQgUIW5-L65zYwTHpNvLwDKGQ) (authored by some GMRI staff) but basically the amount of fish that can be taken from the ocean collectively, known as the Total Allowable Catch (TAC), is determined before the fishing year by suggestions from biologists. In reality it's much more complicated but for our sake that's all we need to know. So, biologists attempt to estimate the spawning stock biomass (SSB) to make an informed decision about the populations ability to reproduce and thus determine how much of it can be taken out. However, (more than) a couple of years we have seen some estimates of the SSB for different stocks so bad that researchers have had to go back and recalculate how many there must have been given where they see the population now. In [this table](https://academic.oup.com/view-large/377923733) from the Kerr et al. (2022) we have documentation of which stocks had to have their populations reevaluated because of over-fishing. Thus, I used this table to add a dummy variable to my data set on whether the stock required an adjustment that year. The goal of the sock adjustment variable was to test whether modeling errors were affect the market of quota prices.
+There were two suggestions from Kanae about how to better improve the model. The first was to consider when we saw comparatively extreme Sea Surface Temperatures (SST's) and Bottom Surface Temperatures (BST's). The most obvious way of doing this was to create a dummy variable in R with a cut-off. We arbitrarily settled on the 90th percentile for this but it could easily have been any other number. In the future, consider using log-standard deviations since we see the quota prices are approaching a normal shape when taking a log scale. The goal of adding the 90th percentile of SST and BST anomaly was to see if extreme heatwaves are reflected in quota prices. We would expect to see that they are since the would drive stocks either deeper or farther north. In either case it would be away from where the fishermen were/are fishing. The second suggestion was to consider whether a stock had been retroactively had its stock assessment changed. This is slightly complicated to explain since it requires summarizing [this paper](https://watermark.silverchair.com/fsac140.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAA1YwggNSBgkqhkiG9w0BBwagggNDMIIDPwIBADCCAzgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMuDCAQBUvFVDDE5hmAgEQgIIDCbvKvXe1ZJlS7Q6bODE2nplq6uFxvy6xnpz_56f3tsJQigWarQnZWHeP3zFHeX12dA2-Bla8udV1gzt_kRf9ywTpq6sxyGuduY05EhOfLS4PKqCn5EQGNWtghLdVBvjyPGf_L6-raF_KFn49VQsWkNdJ9tU6tC1OrEimuYm9JaZ0QJ3-e1rtv1p_kWXIeJ3qmYN09aqHAkoXCPmqBtHe-EKsHRXJTnDgNJm_trhLw0np7WDolNBx1s56PMZaafqFxXEn_T8J4CckCztvFBWvu-za4C6ykfVoiSyIjCsSyXUP6SBOHdUn5sgxBhDUWrL3L1rB6lQw14vf8qE7ZW3SL3oej5xJpZJw4Xbla5czMEzBJmDQcSo7FD00JgN3l_LZbMopQ8PmGnH2ulKabLFdG1--BH6hhBo1nG_76DDg-dJMSBaBzqeHhkw48oa9aIBuw5i5YGOt4TFoYOQfLAbXo_XLrWiiJbbBKo29wxSpxrgwmRGhpGPMe-Qcv_xKax697bBY91e3AHFXA7_zomgnMc0BDipoOznYPjWU6nDGJ5yjT5NiQRaicVr6WhYA4RI2OCHJGehoJ_9qZlZlrRs2t2Ce8HL7qfGlR_zh01jnzJjQgfgwDm-c0naYvZKkVuV4xGLKt8FEPoF5HIBCPgYOsdZErUMkAV8zCmQDdLuqEVlI0-gl0a6il61Rgy-aC47-YHwfLv2RhGIJrZqWsc9MnXamWHSbVOJte7Y1fm-5HqAQnA2PFljnwi2MTtH3XxqP1tmwF5Q82Vi8Mo1D1Dg45Fkj51e46W878swa_SRFgy6jHQHrrjbHBT-iSFFs-9-c3VsbLF9DN9oxs2cor41WTyC0TWGOjBWFxSzT07SGILFF3oFKlc39WQDSGc4KvqiapN1K0kfJOUwO0ODDIpDAP1csUxf-hp9OdvgTduW9KQRuhdRUCNi84yqN8FleE0VcAdyzdVRBang5KOiFQs2fWshzsNftzNsL_E_uSkYxvhzT1WtiCy5RcaQgUIW5-L65zYwTHpNvLwDKGQ) (authored by some GMRI staff) but basically the amount of fish that can be taken from the ocean collectively, known as the Total Allowable Catch (TAC), is determined before the fishing year by suggestions from biologists. In reality it's much more complicated but for our sake that's all we need to know. So, biologists attempt to estimate the spawning stock biomass (SSB) to make an informed decision about the populations ability to reproduce and thus determine how much of it can be taken out. However, (more than) a couple of years we have seen some estimates of the SSB for different stocks so bad that researchers have had to go back and recalculate how many there must have been given where they see the population now. In [this table](https://academic.oup.com/view-large/377923733) from the Kerr et al. (2022) we have documentation of which stocks had to have their populations reevaluated because of over-fishing. Thus, I used this table to add a dummy variable to my data set on whether the stock required an adjustment that year. The goal of the sock adjustment variable was to test whether modeling errors were affect the market of quota prices.
 
 ```{r}
 #Add in the 90th percentile dummy variable for SST and BST
@@ -395,7 +405,7 @@ Not perfect, but certainly MUCH more normal than we had before. As we will see s
 
 ## Model - No Climate Change
 
-We first want to create a baseline as close to Lee and Demarest (2023) as possible. If we were to jump right into modeling with climate change, we would have no idea if the modeling algorithms which differ between R and stata are responsible for the different findings, or if there is something larger at play. Thus, the model summary shown below is the attempt at replicating Table 5 on page 12 of Lee and Demarest (2023).
+We first want to create a baseline as close to Lee and Demarest (2023) as possible. If we were to jump right into modeling with climate change, we would have no idea if the modeling algorithms which differ between R and Stata are responsible for the different findings, or if there is something larger at play. Thus, the model summary shown below is the attempt at replicating Table 5 (on page 12) of Lee and Demarest (2023).
 
 ```{r}
 library(modelsummary)
@@ -457,9 +467,7 @@ modelsummary(models = list("Exponential" = hurdle.1b, "Linear" = hurdle.1a),
 
 This is an excellent time to explain how to interpret this type of a hurdle model in context:
 
-This hurdle model is basically two models working in tandem. The first model is a logistic regression and its independent variables are denoted with the `[H1]` tag in the model summary. This logistic regression is taking the independent variables and predicting whether the dependent variable, in this case the quota price, is either 0 or positive (in which case it assigns a value of 1 to the quota). The coefficients in the first hurdle describe whether the variable is associated with an increased or decreased probability the quota will trade at a price depending on the sign of the coefficient. If the logistic regression model has determined that the hurdle has been cleared (ie. the cut-off was reached) then it uses the observations in an OLS regression to find what variables influence the price of the quotas. (As a side note, this ability to use different variables in the different hurdles is what separates Cragg's hurdle model from a Tobit model). The OLS coefficients from the second hurdle can be interpreted just as you would with any other OLS regression. The benefit of using this hurdle model is that we can save the 0 observations without them having a large pull on the OLS coefficients so we get a better sense of what actually starts affecting the dependent variable, in this case quota price. The goodness of fit interpretations are fairly straightforward. Before discussing what has been printed in the model summary it is important to discuss what has not been printed. A variable called `dpar`. I have no idea what this thing is other than it has something to do with the "hessian" which is a matrix filled with partial derivatives related to the models. I can't understand it when looking it up online since I haven't taken Linear Algebra yet, but if you were to just render this model summary it would appear. With that out of the way, understanding the other goodness of fit statistics is easy. `N`, `N [0]`, and `N [Count]` are all simply the number of observations in our data set. While `N [0]` is the number of observations we have where the quota price is equal to 0 and `N [Count]` is the number of observations we have where the quota price is not equal to 0. The `R2 [0]` is the $R^2$ value for the logistic regression. It has the 0 in the name because it is commonly known as the 0 regression since it the part of the model which describes the 0's. The `R2 [Count]` is the $R^2$ value for the OLS regression. It is called count because it describes the data which has a count or a positive amount. I am unsure if these are pure, adjusted, or pseudo $R^2$'s as the documentation is very unclear and often you have to dive down deep rabbit holes to find out what them mean. For example, the description of Log Likelihood is hidden in another package and the authors of `mhurdle` only leave a one line comment telling you to go looking there for it. In any case, this brings us finally to the Log Likelihood value. This describes the whole model (both `H1` and `H2`) and should be interpreted as any other log likelihood would be, only in comparison of fit between similar models and never absolutely.
-
-This is also a good point to state that I don't know what the cut-off is for the model. Finding resources that can coherently describe hurdle models is very difficult and I have yet to come across one that discusses exactly what the cut-off is.
+This hurdle model is basically two models. The first model is a logistic regression and its independent variables are denoted with the `[H1]` tag in the model summary. This logistic regression is taking the independent variables and predicting whether the dependent variable, in this case the quota price, is either 0 or positive (in which case it assigns a value of 1 to the quota). The coefficients in the first hurdle describe whether the variable is associated with an increased or decreased probability the quota will trade at a price depending on the sign of the coefficient. If observation passes the first "hurdle" (in our case is non-zero) then it keeps all data associated with it and runs an OLS regression to find what variables directly influence the price of the quotas. (As a side note, this ability to use different variables in the different hurdles is what separates Cragg's hurdle model from a Tobit model). This modeling technique allows us to reliably predict the correct amount of 0's in the dependent distribution without creating a truncated non-zero distribution. The OLS coefficients from the second hurdle can be interpreted just as you would with any other OLS regression. Again, [this article](https://www.andrewheiss.com/blog/2022/05/09/hurdle-lognormal-gaussian-brms/#hurdle-lognormal-model-with-fancy-multilevel-things) by Andrew Weiss is very helpful in understanding why people use a hurdle model. The goodness of fit interpretations are fairly straightforward. Before discussing what has been printed in the model summary it is important to discuss what has not been printed. A variable called `dpar`. I have no idea what this thing is other than it has something to do with the "hessian" which is a matrix filled with partial derivatives related to the models. I can't understand it when looking it up online since I haven't taken Linear Algebra yet, but if you were to just render this model summary it would appear. With that out of the way, understanding the other goodness of fit statistics is easy. `N`, `N [0]`, and `N [Count]` are all simply the number of observations in our data set. While `N [0]` is the number of observations we have where the quota price is equal to 0 and `N [Count]` is the number of observations we have where the quota price is not equal to 0. The `R2 [0]` is the $R^2$ value for the logistic regression. It has the 0 in the name because it is commonly known as the 0 regression since it the part of the model which describes the 0's. The `R2 [Count]` is the $R^2$ value for the OLS regression. It is called count because it describes the data which has a count or a positive amount. I am unsure if these are pure, adjusted, or pseudo $R^2$'s as the documentation is very unclear and often you have to dive down deep rabbit holes to find out what them mean. For example, the description of Log Likelihood is hidden in another package and the authors of `mhurdle` only leave a one line comment telling you to go looking there for it. In any case, this brings us finally to the Log Likelihood value. This describes the whole model (both `H1` and `H2`) and should be interpreted as any other log likelihood would be, only in comparison of fit between similar models and never absolutely.
 
 ```{r}
 #Also important is the OLS regression
@@ -549,7 +557,7 @@ modelsummary(models = list("Linear Robust Time Series" = hurdle.1aa, "Exponentia
              ))
 ```
 
-Including the year does not seem to make a large difference in the model's fit. This can quickly be determined by the almost identical log likelihood values between the time series and non-time series models. In addition, the $R^2$ values of both the count and 0 models are also nearly identical between the time series and non-time series models. The only significant difference is between the linear and exponential models themselves, since the exponential fits the count data much better than the linear one does which predicting the 0's virtually just as well.
+Including the year does not seem to make a large difference in the hurdle model's fit. This can quickly be determined by the almost identical log likelihood values between the time series and non-time series models. In addition, the $R^2$ values of both the count and 0 models are also nearly identical between the time series and non-time series models. The only significant difference is between the linear and exponential models themselves, since the exponential fits the count data much better than the linear one does which predicting the 0's virtually just as well.
 
 ```{r}
 #Simply add fishing year into the OLS regression. It could have a difference here
@@ -588,11 +596,11 @@ modelsummary(models = list("OLS" = OLS_replic_time_series),
 
 Again, not a huge difference when adding in the time series control.
 
-Compare with the image of Table 5 (pictured below) taken from Lee and Demarest (2023) and we can see that our models stack up well with theirs. They are not perfect replications, however I think we can chalk that up to our modeling software being different. I chose R and they chose stata which have different maximization algorithms.
+Compare with the image of Table 5 (pictured below) taken from Lee and Demarest (2023) and we can see that our models stack up well with theirs. They are not perfect replications, however I think we can chalk that up to our modeling software being different. I chose R and they chose Stata which have different maximization algorithms.
 
 ![](images/Table%205.png)
 
-We can of course, also make these replication models even more complicated. We can consider whether the error terms of both parts of the hurdle are correlated and set something called the `finalHessian` to `TRUE` in `mhurdle`'s arguments. I do not understand the hessian currently becuase of my lack of linear algebra. Below is an example of considering if the errors of the two parts of the model are correlated.
+We can of course, also make these replication models even more complicated. We can consider whether the error terms of both parts of the hurdle are correlated and set something called the `finalHessian` to `TRUE` in `mhurdle`'s arguments. I do not understand the hessian currently because of my lack of linear algebra. Below is an example of considering if the errors of the two parts of the model are correlated.
 
 ```{r}
 hurdle.2a <- mhurdle(b ~ quota_remaining_BOQ + fraction_remaining_BOQ + proportion_observed + quarter | live_priceGDP + quota_remaining_BOQ + proportion_observed + WTswt_quota_remaining_BOQ + WTDswt_quota_remaining_BOQ + quarter, data = replic,
@@ -769,11 +777,11 @@ modelsummary(models = list("Linear Robust Correlated Climate" = churdle.5c, "Exp
 
 We can see a couple of different things from these models. In general, almost all of the models first hurdle (the logistic regression) predict 0's at about the same level of competence. All $R^2$'s float between 0.373-0.375. However, we see some decent variation in the $R^2$'s for the count regression (the second hurdle - OLS regression). The Linear Robust Correlated model does the worst job with a count $R^2$ of 0.293. While the Exponential Robust Non-Correlated model does the best job with a count $R^2$ of 0.532. While the other two models have a count $R^2$ of 0.444. Another area where these fits are echoed are in the Log Likelihoods. Since all models have the same $R^2$'s for the 0 count data then we can interpret the differences in their Log Likelihoods as due to the better or worse fit from the $R^2$ of the count data.
 
-Arguably the most interesting finding from including the climate change, playing with the robustness and the correlation is that we see (sometimes high) levels of varying significance on the model's coefficients which Lee and Demarest (2023) suggested would be almost staple in any variation of their model. I at least assume that they would think their findings would be consistent given the language they use describing their statistical significance as well as the conclusions they drew on market efficiency from them. I will not include the intercepts in this discussion since they give us almost no interesting findings. For the first model, we see that Fraction of Quota Remaining and all four quarters are the only explanatory variables which remain significant across all models. This leaves Quota Remaining and Fraction of Catch Observed as only sometimes significant. It makes sense that we wouldn't see significance on the Fraction of Catch Observed since we don't even see significance on it in Lee and Demarest (2023). However, it is odd that we don't see the same effect being picked up by both the Quota Remaining and Fraction of Quota Remaining since they are, in effect, measuring the same thing. Which is whether having quota leftover and not traded affects the quota prices. Further consideration as to why we see this is needed. Especially since we see that Quota Remaining is very significant in Lee and Demarest (2023). They don't describe what the cut-offs are for the stars in their paper, but if they're anything like the levels of significance present in R then it means they are significant to a p-value of almost 0.
+Arguably the most interesting finding from including the climate change, playing with the robustness, and the correlation is that we see (sometimes high) levels of varying significance on the model's coefficients which Lee and Demarest (2023) suggested would be almost staple in any variation of their model. I at least assume that they would think their findings would be consistent given the language they use describing their statistical significance as well as the conclusions they drew on market efficiency from them. I will not include the intercepts in this discussion since they give us almost no interesting findings. For the first model, we see that Fraction of Quota Remaining and all four quarters are the only explanatory variables which remain significant across all models. This leaves Quota Remaining and Fraction of Catch Observed as only sometimes significant. It makes sense that we wouldn't see significance on the Fraction of Catch Observed since we don't even see significance on it in Lee and Demarest (2023). However, it is odd that we don't see the same effect being picked up by both the Quota Remaining and Fraction of Quota Remaining since they are, in effect, measuring the same thing. Which is whether having quota leftover and not traded affects the quota prices. Further consideration as to why we see this is needed. Especially since we see that Quota Remaining is very significant in Lee and Demarest (2023). They don't describe what the cut-offs are for the stars in their paper, but if they're anything like the levels of significance present in R then it means they are significant to a p-value of almost 0.
 
 Another interesting finding is that many of the climate coefficients are not significant. Bottom Surface temperature is the only one, which kind-of makes sense since we are considering groundfish species which (like the name implies) live near the bottom of the ocean. Thus, it would make sense that bottom temperature would affect them while sea surface temperature may not. However, it is a little odd that the duration of a heatwave does not seem to affect the fish as much as the maximum temperature would, at least as it relates to quota prices. One of the things that Lee and Demarest (2023) harped on in their introduction is that the switch to an ITQ-like system of fishing allows for fishermen to pick the days they want to go out and reduces effort in a good way. We can see this in this model since there is no change in probability of quota price depending on the number of days that in a year which had storms. This shows that fishermen are picking their days to go out on the water and aren't dangerously rushing into the water like they would have when effort was regulated instead of quantity. Interestingly we again don't see an impact on quota prices from the BST 90th percentile dummy variable. Again, I don't have an explanation for why this could be occurring. My best current guess would be that 90th percentile isn't a high enough cut-off for us to see the significance. Considering that BST maximum already only barely reaches significance then it wouldn't be a stretch to say that we might need to get to the 95th or 99th percentile before we start seeing the fish really starting to change their behavior in ways that would dupe fishermen who have been in the area and doing this for decades. Then we also see that the stock adjustment has no affect on the quota prices of the quota. This seems rather improbable and when I discussed this with Kanae and she agreed. It would be great if we could implement a lag variable to measure this on a stock-by-stock basis since I think that would allow us to capture the affect of having to change the stock measurements with respect to scarcity. However, each species life cycle is different and therefore the lag factor would have to change with the species. That's too much work for this summer and probably when I get back to school too. Especially considering what Amanda (Hart\[?\]) said about non-Cod/Haddock stocks. (She said they were very understudied and it's hard to get any information on them). For the second model, we see that Live Price, Quota Remaining, and Fraction of Catch Observed are the only variables which are statistically significant across all models. Both Live Price and Quota Remaining make sense as to why they would be important in determining the quota price. However, to see that Fraction of Catch Observed doesn't impact the probability of a quota price being 0 or positive, but then is highly significant to the price of the quota is a head-scratcher and borders on paradoxical. The only interpretation that I'm left with is that only certain species are monitored heavily and those species definitely have a higher price and were never zero which is why it's in the count but not in the zero. From background knowledge I know that there has been a new an increased effort by NOAA with the [help of GMRI to install cameras](https://gmri.org/projects/electronic-monitoring-em/) in an effort to increase compliance in respecting legal sizes of fish through an increase in monitoring effort. It could be that only species whose quotas sell for more (never 0) have experienced this increase in monitoring effort coincidentally. Further investigation is certainly warranted and would be a good place to resume in the school year. Continuing with the trend from the first hurdle we see that the climate variables are not very good at describing the changes we see in quota prices of the fish. Some of the variables are significant in some of the models but there are no variables significant across all models. Yet again pointing to the interesting notion that climate change is not being reflected well in our models.
 
-This lack of representation of climate change influence in quota price models could mean a few things. The first, and most probabaly, is that we don't have enough data. Whether that be not far enough forward or backwards since our data only goes from 2010-2019. It's possible that we either haven't seen a threshold reached that will come in the future where we see species really start to leave their historic grounds to get away from warming waters or it's possible that we have seen that threshold but the data available doesn't reach far enough back for us to capture that trend. The second, and less probable of the two given what the current literature of both biology and economics would suggest, is that climate change is not having an impact on these stocks in a way that has been reflected in the quota prices.
+This lack of representation of climate change influence in quota price models could mean a few things. The first, and most probably, is that we don't have enough data. Whether that be not far enough forward or backwards since our data only goes from 2010-2019. It's possible that we either haven't seen a threshold reached that will come in the future where we see species really start to leave their historic grounds to get away from warming waters or it's possible that we have seen that threshold but the data available doesn't reach far enough back for us to capture that trend. The second, and less probable of the two given what the current literature of both biology and economics would suggest, is that climate change is not having an impact on these stocks in a way that has been reflected in the quota prices.
 
 ```{r}
 #Time Fixed Effect model
@@ -822,109 +830,18 @@ modelsummary(models = list("Time Fixed Effect" = OLS_time_fixed, "Stock and Time
              ))
 ```
 
+Conversely to the hurdle models, we see climate change being screamed in the OLS models. This is quite odd to have such differences present.
+
+# Conclusions
+
+Overall, we find that there is evidence that climate change is being reflected in the quota prices. There is strong evidence from both theory and the fixed effects models. While weak evidence is present in the hurdle models. However, as Kane pointed out, if we rerun the hurdle models with less explanatory variables we will probably start to see them reflecting different levels of significance. With the amount of explanatory variables we have we are starting to push the hurdle models to their effective limits.
+
+Since climate change is reflected in the quota prices, this should mean (according to Lee and Demarest) that the quota market could benefit from some changes to trading. Namely, removing barriers to trade should help reduce the quota prices since it will allow the quotas to go more freely to the fishermen who want/need them.
+
 # Directions For Further Research
 
 One of the most obvious places for improvement in this research is considering the amount of trades that take place during a quarter as a control. In my climate change models I assume some processes using economic theory that may not be taking place. I assume that climate change is causing an increase in quota trades because we see stock populations shifting unpredictably. Then, from economic theory we assume due to the high transaction costs from some (arguably poor) interesting market design that this will lead to higher quota prices. However, I never formally tested whether whether we actually see more trades occurring from climate change. This would be rather easy to test and an excellent opportunity to use some causal inference techniques since we will need to test against the counter-factual that the market is just maturing. This will probably lend itself well to a diff-in-diff model but we can cross that bridge when we get there.
 
-In the back of my mind I should be considering whether the stock is a choke species. Probably these choke species are the ones who are being traded more often. Creating a cut-off and then coding a dummy variable for designated choke speies is similar to the BST90 and SST90 variables for creating a significant variable.
+In the back of my mind I should be considering whether the stock is a choke species. Probably these choke species are the ones who are being traded more often. Creating a cut-off and then coding a dummy variable for designated choke species is similar to the BST90 and SST90 variables for creating a significant variable.
 
 Another area of improvement would be in understanding why, in the climate hurdle models, do we see differences in significance in the same variables across the different hurdles? Such as Fraction of Catch Observed; it is significant in the first hurdle but not the second hurdle model which is very difficult to interpret. Diving into and finding why this is would be very interesting and is something that should be answered before SPIRES in S'24.
-
-# Extras
-
-Extra renderings that should not be included in the final draft but are needed to make final presentation at GMRI look good.
-
-```{r}
-modelsummary(models = list("Exponential Robust Correlated Climate" = churdle.5a),
-             #Set the stars to correct significance level
-             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
-             #Prevents standard error from being displayed since I think there's too much going on with it
-             statistic = NULL,
-             coef_map = c(
-                             "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
-                             "h1.fraction_remaining_BOQ" = "Fraction Quota Remaining [H1]",
-                             "h1.proportion_observed" = "Fraction of Catch Observed [H1]",
-                             "h1.quarterQ2" = "Q2 [H1]",
-                             "h1.quarterQ3" = "Q3 [H1]",
-                             "h1.quarterQ4" = "Q4 [H1]",
-                             "h1.`bottom temp anomaly in situ`" = "BST Heatwave Maximum [H1]",
-                             "h1.`sst anomaly in situ`" = "SST Heatwave Maximum [H1]",
-                             "h1.`duration-BottomDetrended`" = "BST Heatwave Duration [H1]",
-                             "h1.`duration-SurfaceDetrended`" = "SST Heatwave Duration [H1]",
-                             "h1.Wave_Height" = "Storm Days (Waves) [H1]",
-                             "h1.BST90" = "BST in 90th Percentile [H1]",
-                             "h1.stock_adjustment" = "Stock Assessment Adjusted Post-Facto [H1]",
-                             "h1.(Intercept)" = "Intercept [H1]",
-                             "h2.live_priceGDP" = "Live Price [H2]",
-                             "h2.quota_remaining_BOQ" = "Quota Remaining [H2]",
-                             "h2.fraction_remaining_BOQ" = "Fraction Quota Remaining [H2]",
-                             "h2.proportion_observed" = "Fraction of Catch Observed [H2]",
-                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining [H2]",
-                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining [H2]",
-                             "h2.quarterQ2" = "Q2 [H2]",
-                             "h2.quarterQ3" = "Q3 [H2]",
-                             "h2.quarterQ4" = "Q4 [H2]",
-                             "h2.`bottom temp anomaly in situ`" = "BST Heatwave Maximum [H2]",
-                             "h2.`sst anomaly in situ`" = "SST Heatwave Maximum [H2]",
-                             "h2.`duration-BottomDetrended`" = "BST Heatwave Duration [H2]",
-                             "h2.Wave_Height" = "Storm Days (Waves) [H2]",
-                             "h2.BST90" = "BST in 90th Percentile [H2]",
-                             "h2.stock_adjustment" = "Stock Assessment Adjusted Post-Facto [H2]",
-                             "h2.(Intercept)" = "Intercept [H2]",
-                             "corr12" = "Correlation of Errors [H1 & H2]"),
-             coef_omit = "sd.sd|pos",
-             #gof_omit = "dpar",
-             gof_map = list(
-               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
-               list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
-               list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
-               #This funky "²" can be accessed through the emoji keyboard on mac with
-               #"control+command+space" and searching for super-script
-               list("raw" = "R2.zero", "clean" = "R² [0]", "fmt" = 3),
-               list("raw" = "R2.pos", "clean" = "R² [Count]", "fmt" = 3),
-               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
-             ))
-```
-
-```{r}
-modelsummary(models = list("Exponential Robust Correlated Climate" = churdle.5a),
-             #Set the stars to correct significance level
-             stars = c('^' = 0.1, '*' = .05, '**' = .01, '***' = 0.001),
-             #Prevents standard error from being displayed since I think there's too much going on with it
-             statistic = NULL,
-             
-             coef_map = c(
-                             "h1.quota_remaining_BOQ" = "Quota Remaining [H1]",
-                             "h1.fraction_remaining_BOQ" = "Fraction Quota Remaining [H1]",
-                             "h1.proportion_observed" = "Fraction of Catch Observed [H1]",
-                             "h1.quarterQ2" = "Q2 [H1]",
-                             "h1.quarterQ3" = "Q3 [H1]",
-                             "h1.quarterQ4" = "Q4 [H1]",
-                             "h1.`bottom temp anomaly in situ`" = "BST Heatwave Maximum [H1]",
-                             
-                             "h1.Wave_Height" = "Storm Days (Waves) [H1]",
-                             "h1.(Intercept)" = "Intercept [H1]",
-                             
-                             "h2.live_priceGDP" = "Live Price [H2]",
-                             "h2.quota_remaining_BOQ" = "Quota Remaining [H2]",
-                             "h2.fraction_remaining_BOQ" = "Fraction Quota Remaining [H2]",
-                             "h2.proportion_observed" = "Fraction of Catch Observed [H2]",
-                             "h2.WTswt_quota_remaining_BOQ" = "Distance Lag of Quota Remaining [H2]",
-                             "h2.WTDswt_quota_remaining_BOQ" = "Inverse Distance Lag of Quota Remaining [H2]",
-                             "h2.quarterQ3" = "Q3 [H2]",
-                             "h2.quarterQ4" = "Q4 [H2]",
-                             
-                             "h2.(Intercept)" = "Intercept [H2]"),
-             coef_omit = "sd.sd|pos",
-             #gof_omit = "dpar",
-             gof_map = list(
-               list("raw" = "nobs", "clean" = "N", "fmt" = 0),
-               list("raw" = "nobs.zero", "clean" = "N [0]", "fmt" = 0),
-               list("raw" = "nobs.pos", "clean" = "N [Count]", "fmt" = 0),
-               #This funky "²" can be accessed through the emoji keyboard on mac with
-               #"control+command+space" and searching for super-script
-               list("raw" = "R2.zero", "clean" = "R² [0]", "fmt" = 3),
-               list("raw" = "R2.pos", "clean" = "R² [Count]", "fmt" = 3),
-               list("raw" = "logLik", "clean" = "Log Likelihood", "fmt" = 3)
-             ))
-```
