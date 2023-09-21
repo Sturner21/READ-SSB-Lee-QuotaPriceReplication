@@ -1,5 +1,5 @@
 ---
-title: "Fishy Buisness: \"Reeling in\" and Quantifying Impact of Climate Change on Groundfish Quota Prices"
+title: "Fishy Business: \"Reeling in\" and Analyzing Impact of Climate Change on Groundfish Quota Prices"
 subtitle: "REU Research Recap" 
 date: 08/04/23
 author: "Sam Turner"
